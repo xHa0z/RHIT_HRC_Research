@@ -17,3 +17,7 @@ Assign individual's task
 |     Bryan    | AI, Neural Network, Big Data <br>Talk to Dr. Shibberu about the probability portion of the project <br>and what he would like to be involved on the project |                                      |
 |      All     |                                             Figure out a better time to hold meeting with instructors and group                                             |                                      |
 | Zach, Zhihao |                                                                    Create a block diagram                                                                   |                                      |
+
+
+#### Additional Comments
+* Zhihao: I am trying to use email and Skype for Business as our default communication tool. I am still waiting permission from EIT to create a chat room on Skype.
