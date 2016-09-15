@@ -1,5 +1,6 @@
-## HRC Research Week 1 Memo
+## HRC Research Weekly Memo
 
+## Week 1
 
 #### Summary of last meeting
 Briefly talk about this research project
@@ -20,3 +21,25 @@ Assign individual's task
 
 #### Additional Comments
 * Zhihao: I am trying to use email and Skype for Business as our default communication tool. I am still waiting permission from EIT to create a chat room on Skype.
+
+
+
+
+
+
+
+## Week 2
+#### Summary of last week
+* Talk about GitHub repo
+* Update Myer room and communication tool status
+* Discuss system block diagram
+
+#### Tasks for this week
+|  Name  |                                        Task                                        | Status |
+|:------:|:----------------------------------------------------------------------------------:|:------:|
+| CC, ZX |     Make sure do lit reviews from repo <br>Keep timekeeping and memos in drive     |        |
+|   ZX   |                  Talk with Shibberu about training neural network                  |  Doing |
+|   KC   |                    Talk to Dr. Winck or Dr. Mutchler about code                    |        |
+|   LS   | Bring robot to meeting next week <br>Meet with Zach <br>Test sample code on Cython |        |
+|   DA   |  Work on Leap Motion <br>Get x,y,z data into a text file <br>Look into how to plot |        |
+|   CC   |                           Acquire microphone from ME room                          |        |
