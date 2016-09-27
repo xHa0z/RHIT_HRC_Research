@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DynAccSensorNetwork xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.energid.com/cyton/cyton/dynAccPlugin/ec
+  dynAccConfig.ec.xsd" xmlns="http://www.energid.com/cyton/cyton/dynAccPlugin/ec" version="4.0.0">
+ <DynAccBoardConfigVector size="3">
+  <DynAccBoardConfig library="dynAccPlugin.ecp">
+   <hasPotentiometer>1</hasPotentiometer>
+   <imuLinkIndex>-2</imuLinkIndex>
+   <mn:label xmlns:mn="http://www.energid.com/namespace/mn">BaseIMU</mn:label>
+   <mn:offsetFrame xmlns:mn="http://www.energid.com/namespace/mn">
+    <cr:orientation xmlns:cr="http://www.energid.com/namespace/cr" q0="0.5" q1="-0.5" q2="-0.5" q3="0.5"/>
+    <cr:translation xmlns:cr="http://www.energid.com/namespace/cr" x="0" y="0" z="0"/>
+   </mn:offsetFrame>
+  <ec:potCalibrationPoints size="2">
+   <ec:element>
+    <ec:jointAngle>0</ec:jointAngle>
+    <ec:potReading>512</ec:potReading>
+   </ec:element>
+   <ec:element>
+    <ec:jointAngle>1.5707963267948966</ec:jointAngle>
+    <ec:potReading>346</ec:potReading>
+   </ec:element>
+  </ec:potCalibrationPoints>
+   <potJointIndex>0</potJointIndex>
+   <sensorID>101</sensorID>
+   <mn:updateRate xmlns:mn="http://www.energid.com/namespace/mn">0</mn:updateRate>
+  </DynAccBoardConfig>
+  <DynAccBoardConfig library="dynAccPlugin.ecp">
+   <hasPotentiometer>0</hasPotentiometer>
+   <imuLinkIndex>3</imuLinkIndex>
+   <mn:label xmlns:mn="http://www.energid.com/namespace/mn">ElbowPitchIMU</mn:label>
+   <mn:offsetFrame xmlns:mn="http://www.energid.com/namespace/mn">
+    <cr:orientation xmlns:cr="http://www.energid.com/namespace/cr" q0="0.5" q1="-0.5" q2="-0.5" q3="0.5"/>
+    <cr:translation xmlns:cr="http://www.energid.com/namespace/cr" x="0" y="0" z="0"/>
+   </mn:offsetFrame>
+   <potCalibrationPoints size="0"/>
+   <potJointIndex>0</potJointIndex>
+   <sensorID>102</sensorID>
+   <mn:updateRate xmlns:mn="http://www.energid.com/namespace/mn">0</mn:updateRate>
+  </DynAccBoardConfig>
+  <DynAccBoardConfig library="dynAccPlugin.ecp">
+   <hasPotentiometer>0</hasPotentiometer>
+   <imuLinkIndex>5</imuLinkIndex>
+   <mn:label xmlns:mn="http://www.energid.com/namespace/mn">WristPitchIMU</mn:label>
+   <mn:offsetFrame xmlns:mn="http://www.energid.com/namespace/mn">
+    <cr:orientation xmlns:cr="http://www.energid.com/namespace/cr" q0="1" q1="0" q2="0" q3="0"/>
+    <cr:translation xmlns:cr="http://www.energid.com/namespace/cr" x="0" y="0" z="0"/>
+   </mn:offsetFrame>
+   <potCalibrationPoints size="0"/>
+   <potJointIndex>0</potJointIndex>
+   <sensorID>103</sensorID>
+   <mn:updateRate xmlns:mn="http://www.energid.com/namespace/mn">0</mn:updateRate>
+  </DynAccBoardConfig>
+ </DynAccBoardConfigVector>
+ <baudRate>1000000</baudRate>
+ <port>any</port>
+ <servosOnNetwork>1</servosOnNetwork>
+ <timeOutInMs>1000</timeOutInMs>
+</DynAccSensorNetwork>

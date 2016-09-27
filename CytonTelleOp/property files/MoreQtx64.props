@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_PropertySheetDisplayName>MasterQt</_PropertySheetDisplayName>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>.;C:\Qt\5.6\msvc2015_64\include;C:\Qt\5.6\msvc2015_64\include\QtWidgets;C:\Qt\5.6\msvc2015_64\include\QtGui;C:\Qt\5.6\msvc2015_64\include\QtANGLE;C:\Qt\5.6\msvc2015_64\include\QtCore;release;.;C:\Qt\5.6\msvc2015_64\mkspecs\win32-msvc2015;;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>C:\Qt\5.6\msvc2015_64\lib;C:\Qt\5.6\msvc2015_64\lib;C:\Qt\5.6\msvc2015_64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>qtmain.lib;shell32.lib;Qt5Core.lib;Qt5Widgets.lib;Qt5Gui.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>

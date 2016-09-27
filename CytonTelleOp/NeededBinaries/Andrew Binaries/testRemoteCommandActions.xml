@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manipulationActionManager xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.energid.com/namespace/ct
+  testRemoteCommandActionsEpsilon1500.ct.xsd" xmlns="http://www.energid.com/namespace/ct" version="4.0.0">
+ <actionMap>
+  <element>
+   <key>Close Gripper</key>
+   <value>
+    <gripperAction>
+     <activeEndEffectorSet>0</activeEndEffectorSet>
+     <endEffectorIndex>1</endEffectorIndex>
+     <gripperClosedPosition>0</gripperClosedPosition>
+     <gripperDesiredPositionPercentage>1</gripperDesiredPositionPercentage>
+     <gripperMode>setMode</gripperMode>
+     <gripperOpenPosition>0.014999999999999999</gripperOpenPosition>
+    </gripperAction>
+   </value>
+  </element>
+  <element>
+   <key>Init Joints</key>
+   <value>
+    <jointFrameSequence>
+     <activeControlDescription>0</activeControlDescription>
+     <activeControlMethod>0</activeControlMethod>
+     <jointFrameVector size="2">
+      <element>
+       <desiredPlacement>
+        <cr:endEffectorPlacementData xmlns:cr="http://www.energid.com/namespace/cr" size="8">
+         <cr:group>
+          5.0618038966339543e-034 5.729147989426506e-033 6.6171540595487013e-033 -6.5442167501078574e-033 -6.1668591125341643e-033 -6.6687808988226928e-033 -4.5503002527519765e-033 0.014500000000000001
+         </cr:group>
+        </cr:endEffectorPlacementData>
+        <cr:orientation xmlns:cr="http://www.energid.com/namespace/cr" q0="1" q1="0" q2="0" q3="0"/>
+        <cr:translation xmlns:cr="http://www.energid.com/namespace/cr" x="0" y="0" z="0"/>
+       </desiredPlacement>
+       <desiredRelativePlacementMask size="8">
+        <group>0 0 0 0 0 0 0 0</group>
+       </desiredRelativePlacementMask>
+       <mn:jointPositions xmlns:mn="http://www.energid.com/namespace/mn" size="0"/>
+       <name></name>
+       <speedFactor>1</speedFactor>
+       <tolerance>0.001</tolerance>
+      </element>
+      <element>
+       <desiredPlacement>
+        <cr:endEffectorPlacementData xmlns:cr="http://www.energid.com/namespace/cr" size="8">
+         <cr:group>
+          5.0618038966339543e-034 -0.64751715248989627 6.6171540595487013e-033 -0.87964594300514209 -6.1668591125341643e-033 -0.86742863824118177 -4.5503002527519765e-033 0.014500000000000001
+         </cr:group>
+        </cr:endEffectorPlacementData>
+        <cr:orientation xmlns:cr="http://www.energid.com/namespace/cr" q0="1" q1="0" q2="0" q3="0"/>
+        <cr:translation xmlns:cr="http://www.energid.com/namespace/cr" x="0" y="0" z="0"/>
+       </desiredPlacement>
+       <desiredRelativePlacementMask size="8">
+        <group>0 0 0 0 0 0 0 0</group>
+       </desiredRelativePlacementMask>
+       <mn:jointPositions xmlns:mn="http://www.energid.com/namespace/mn" size="0"/>
+       <name></name>
+       <speedFactor>1</speedFactor>
+       <tolerance>0.001</tolerance>
+      </element>
+     </jointFrameVector>
+    </jointFrameSequence>
+   </value>
+  </element>
+  <element>
+   <key>Open Gripper</key>
+   <value>
+    <gripperAction>
+     <activeEndEffectorSet>0</activeEndEffectorSet>
+     <endEffectorIndex>1</endEffectorIndex>
+     <gripperClosedPosition>-0.0080000000000000002</gripperClosedPosition>
+     <gripperDesiredPositionPercentage>99</gripperDesiredPositionPercentage>
+     <gripperMode>setMode</gripperMode>
+     <gripperOpenPosition>0.0080000000000000002</gripperOpenPosition>
+    </gripperAction>
+   </value>
+  </element>
+  <element>
+   <key>Waypoints</key>
+   <value>
+    <waypointSequence>
+     <activeControlDescription>0</activeControlDescription>
+     <activeEndEffectorSet>1</activeEndEffectorSet>
+     <endEffectorIndex>0</endEffectorIndex>
+     <manipulationWaypointVector size="4">
+      <element>
+       <activeControlMethod>0</activeControlMethod>
+       <angularZone>0.10000000000000001</angularZone>
+       <endEffectorAcceleration>2</endEffectorAcceleration>
+       <endEffectorDeceleration>1</endEffectorDeceleration>
+       <endEffectorSpeed>1</endEffectorSpeed>
+       <extendedZoneRadius>0.02</extendedZoneRadius>
+       <goal>
+        <cr:orientation xmlns:cr="http://www.energid.com/namespace/cr" q0="-0.65832842508423384" q1="-0.25807690192317517" q2="0.25807689966077546" q3="-0.65832842205188924"/>
+        <cr:translation xmlns:cr="http://www.energid.com/namespace/cr" x="-0.0017582283228067576" y="0.39856283584667851" z="0.27541261966118247"/>
+       </goal>
+       <interpolate>0</interpolate>
+       <isRelative>0</isRelative>
+       <name></name>
+       <roleName></roleName>
+       <stopPoint>0</stopPoint>
+       <tolerance>0.0001</tolerance>
+       <waypointInterpolatorContainer>
+        <bezierInterpolator xsi:nil="true"/>
+       </waypointInterpolatorContainer>
+       <zoneRadius>0.02</zoneRadius>
+      </element>
+      <element>
+       <activeControlMethod>0</activeControlMethod>
+       <angularZone>0.10000000000000001</angularZone>
+       <endEffectorAcceleration>2</endEffectorAcceleration>
+       <endEffectorDeceleration>1</endEffectorDeceleration>
+       <endEffectorSpeed>1</endEffectorSpeed>
+       <extendedZoneRadius>0.02</extendedZoneRadius>
+       <goal>
+        <cr:orientation xmlns:cr="http://www.energid.com/namespace/cr" q0="0.65832842508078571" q1="0.25807690192420901" q2="-0.25807689966180941" q3="0.65832842205452657"/>
+        <cr:translation xmlns:cr="http://www.energid.com/namespace/cr" x="0.010597803317808718" y="0.27674425646947637" z="0.26144467824172712"/>
+       </goal>
+       <interpolate>0</interpolate>
+       <isRelative>0</isRelative>
+       <name></name>
+       <roleName></roleName>
+       <stopPoint>0</stopPoint>
+       <tolerance>0.0001</tolerance>
+       <waypointInterpolatorContainer>
+        <bezierInterpolator xsi:nil="true"/>
+       </waypointInterpolatorContainer>
+       <zoneRadius>0.02</zoneRadius>
+      </element>
+      <element>
+       <activeControlMethod>0</activeControlMethod>
+       <angularZone>0.10000000000000001</angularZone>
+       <endEffectorAcceleration>2</endEffectorAcceleration>
+       <endEffectorDeceleration>1</endEffectorDeceleration>
+       <endEffectorSpeed>1</endEffectorSpeed>
+       <extendedZoneRadius>0.02</extendedZoneRadius>
+       <goal>
+        <cr:orientation xmlns:cr="http://www.energid.com/namespace/cr" q0="0.70997429519437982" q1="0.048816654691838046" q2="-0.4232763582328582" q3="0.56070541191348477"/>
+        <cr:translation xmlns:cr="http://www.energid.com/namespace/cr" x="0.010597803317808718" y="0.27674425646947637" z="0.26144467824172712"/>
+       </goal>
+       <interpolate>0</interpolate>
+       <isRelative>0</isRelative>
+       <name></name>
+       <roleName></roleName>
+       <stopPoint>0</stopPoint>
+       <tolerance>0.0001</tolerance>
+       <waypointInterpolatorContainer>
+        <bezierInterpolator xsi:nil="true"/>
+       </waypointInterpolatorContainer>
+       <zoneRadius>0.02</zoneRadius>
+      </element>
+      <element>
+       <activeControlMethod>0</activeControlMethod>
+       <angularZone>0.10000000000000001</angularZone>
+       <endEffectorAcceleration>2</endEffectorAcceleration>
+       <endEffectorDeceleration>1</endEffectorDeceleration>
+       <endEffectorSpeed>1</endEffectorSpeed>
+       <extendedZoneRadius>0.02</extendedZoneRadius>
+       <goal>
+        <cr:orientation xmlns:cr="http://www.energid.com/namespace/cr" q0="0.49993166977301218" q1="0.46792763831268425" q2="-0.1142682803263886" q3="0.719760245479237"/>
+        <cr:translation xmlns:cr="http://www.energid.com/namespace/cr" x="0.010597803317808718" y="0.27674425646947637" z="0.26144467824172712"/>
+       </goal>
+       <interpolate>0</interpolate>
+       <isRelative>0</isRelative>
+       <name></name>
+       <roleName></roleName>
+       <stopPoint>0</stopPoint>
+       <tolerance>0.0001</tolerance>
+       <waypointInterpolatorContainer>
+        <bezierInterpolator xsi:nil="true"/>
+       </waypointInterpolatorContainer>
+       <zoneRadius>0.02</zoneRadius>
+      </element>
+     </manipulationWaypointVector>
+    </waypointSequence>
+   </value>
+  </element>
+ </actionMap>
+ <actionOrder size="4">
+  <element>Init Joints</element>
+  <element>Open Gripper</element>
+  <element>Close Gripper</element>
+  <element>Waypoints</element>
+ </actionOrder>
+</manipulationActionManager>
