@@ -123,3 +123,15 @@ bool CytonEpsilonRunner::goToJointHome() {
 	}
 	return positionAchieved;
 }
+
+//Tells the robot to move in the specified direction
+bool CytonEpsilonRunner::moveDelta(double x, double y, double z) {
+	//TODO:Fill this out
+
+	//TODO: Find current Cyton Position
+
+	//TODO: Tell Cyton to move to current position + deltas
+
+	//return true if successfull, false otherwise
+	return false;
+}
