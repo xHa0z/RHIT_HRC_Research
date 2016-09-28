@@ -138,7 +138,7 @@ bool CytonEpsilonRunner::goToJointHome() {
 }
 
 //Tells the robot to move in the specified direction
-bool CytonEpsilonRunner::moveDelta(double x, double y, double z) {
+bool CytonEpsilonRunner::moveDelta(double dx, double dy, double dz) {
 	//TODO:Fill this out
 
 	//TODO: Find current Cyton Position
@@ -151,45 +151,22 @@ bool CytonEpsilonRunner::moveDelta(double x, double y, double z) {
 	EcManipulatorEndEffectorPlacement actualEEPlacement;
 	EcCoordinateSystemTransformation actualCoord;
 	getActualPlacement(actualEEPlacement);
-	actualCoord = actualEEPlacement.offsetTransformations()[0].coordSysXForm;
+	actualCoord = actualEEPlacement.offsetTransformations()[0].coordSysXForm();
 
 	EcVector trans = actualCoord.translation();
 	double x = trans.x();
 	double y = trans.y();
 	double z = trans.z();
 
-	int deltaX;
-	int deltaY;
-	int deltaZ;
 
-	QString pressedKey = event->text();
-	if (pressedKey == "up") {
-		y = trans.y + deltaY;
-
-	}
-	else if (pressedKey == "down") {
-		y = trans.y - deltaY;
-	}
-	else if (pressedKey == "left") {
-		x = trans.x + deltaX;
-	}
-	else if (pressedKey == "right") {
-		x = trans.x - deltaX;
-	}
-	else if (pressedKey == "PageUp") {
-		z = trans.z + deltaZ;
-	}
-	else if (pressedKey == "PageDown") {
-		z = trans.z - deltaZ;
-	}
-	else {
-		return false;
-	}
+	x += dx;
+	y += dy;
+	z += dz;
 
 	EcCoordinateSystemTransformation pose;
-	pose.setTranslation(x);
-	pose.setTranslation(y);
-	pose.setTranslation(z);
+	pose.setTranslationX(x);
+	pose.setTranslationY(y);
+	pose.setTranslationZ(z);
 	printf("x: %f, y: %f, z: %f moving at %f step s");
 	setEndEffectorSet(0);
 	EcEndEffectorPlacement desiredPlacement(pose);
