@@ -1,8 +1,21 @@
 #include "stdafx.h"
 #include "CytonEpsilonRunner.h"
-
-
+#include "ecCytonCommands.h"
+#include <control/ecEndEffectorSet.h>
+#include <controlCore/ecFrameEndEffector.h>
+#include <control/ecManipEndEffectorPlace.h>
+#include <foundCore/ecApplication.h>
+#include <foundCore/ecMacros.h>
+#include <manipulation/ecManipulationActionManager.h>
+#include <manipulationDirector/ecManipulationScript.h>
+#include <manipulationDirector/ecManipulationDirector.h>
+#include <math.h>
+#include <remoteCommand/ecRemoteCommand.h>
+#include <xmlReaderWriter/ecXmlObjectReaderWriter.h>
+#include <iostream>
+#include <boost/bind.hpp>
 #include "CytonEpsilonRunner.h"
+#include <foundCommon/ecCoordSysXForm.h>
 
 #define FRAME_EE_SET 1
 #define JOINT_CONTROL_EE_SET 0xFFFFFFFF
@@ -77,7 +90,7 @@ bool CytonEpsilonRunner::goToJointHome() {
 	EcRealVector currentJoints;
 	retVal &= getJointValues(currentJoints);
 
-	size_t size = currentJoints.size();
+	size_t size = currentJoints.size();  // Make sure the robot does not go off limit
 	if (size < jointPosition.size()) {
 		size = currentJoints.size();
 	}
@@ -133,5 +146,53 @@ bool CytonEpsilonRunner::moveDelta(double x, double y, double z) {
 	//TODO: Tell Cyton to move to current position + deltas
 
 	//return true if successfull, false otherwise
+
+	
+	EcManipulatorEndEffectorPlacement actualEEPlacement;
+	EcCoordinateSystemTransformation actualCoord;
+	getActualPlacement(actualEEPlacement);
+	actualCoord = actualEEPlacement.offsetTransformations()[0].coordSysXForm;
+
+	EcVector trans = actualCoord.translation();
+	double x = trans.x();
+	double y = trans.y();
+	double z = trans.z();
+
+	QString pressedKey = event->text();
+	if (pressedKey == "up") {
+		y = trans.y + deltaY;
+
+	}
+	else if (pressedKey == "down") {
+		y = trans.y - deltaY;
+	}
+	else if (pressedKey == "left") {
+		x = trans.x + deltaX;
+	}
+	else if (pressedKey == "right") {
+		x = trans.x - deltaX;
+	}
+	else if (pressedKey == "PageUp") {
+		z = trans.z + deltaZ;
+	}
+	else if (pressedKey == "PageDown") {
+		z = trans.z - deltaZ;
+	}
+
+	EcCoordinateSystemTransformation pose;
+	pose.setTranslation(x);
+	pose.setTranslation(y);
+	pose.setTranslation(z);
+	printf("x: %f, y: %f, z: %f moving at %f step s")
+	setEndEffectorSet(0);
+	EcEndEffectorPlacement desiredPlacement(pose);
+
+
+
+	
+
+		
+	
+
 	return false;
 }
