@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "CytonEpsilonRunner.h"
-#include "ecCytonCommands.h"
+
 #include <control/ecEndEffectorSet.h>
 #include <controlCore/ecFrameEndEffector.h>
 #include <control/ecManipEndEffectorPlace.h>
@@ -158,6 +158,10 @@ bool CytonEpsilonRunner::moveDelta(double x, double y, double z) {
 	double y = trans.y();
 	double z = trans.z();
 
+	int deltaX;
+	int deltaY;
+	int deltaZ;
+
 	QString pressedKey = event->text();
 	if (pressedKey == "up") {
 		y = trans.y + deltaY;
@@ -178,12 +182,15 @@ bool CytonEpsilonRunner::moveDelta(double x, double y, double z) {
 	else if (pressedKey == "PageDown") {
 		z = trans.z - deltaZ;
 	}
+	else {
+		return false;
+	}
 
 	EcCoordinateSystemTransformation pose;
 	pose.setTranslation(x);
 	pose.setTranslation(y);
 	pose.setTranslation(z);
-	printf("x: %f, y: %f, z: %f moving at %f step s")
+	printf("x: %f, y: %f, z: %f moving at %f step s");
 	setEndEffectorSet(0);
 	EcEndEffectorPlacement desiredPlacement(pose);
 
