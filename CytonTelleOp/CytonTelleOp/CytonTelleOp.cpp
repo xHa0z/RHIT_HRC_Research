@@ -20,9 +20,10 @@ int main()
 	bool looping = true;
 	std::cout << "Press Escape to disconnect" << std::endl;
 
-	double step = 0.1;
-	int deltaX, deltaY, deltaZ = 0;
+	double step = 0.01;
+	double deltaX, deltaY, deltaZ = 0;
 	while (looping) {
+
 		//get keys being pressed and update
 		if (GetAsyncKeyState(VK_ESCAPE)) {
 			looping = false;
@@ -45,9 +46,13 @@ int main()
 		if (GetAsyncKeyState(VK_NEXT)) {//page down
 			deltaZ -= step;
 		}
-		if (deltaX != 0 || deltaY != 0 || deltaZ != 0) {//don't move if nothing changed
+		if ((deltaX > step || deltaX < -step)|| (deltaY > step || deltaY < -step) || (deltaZ > step || deltaZ < -step)) {//don't move if nothing changed
 			runs->moveDelta(deltaX, deltaY, deltaZ);//tell the cyton to move
+			deltaX = 0;
+			deltaY = 0;
+			deltaZ = 0;
 		}
+		Sleep(100);
 	}
 	runs->shutdown();
 

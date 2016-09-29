@@ -163,15 +163,30 @@ bool CytonEpsilonRunner::moveDelta(double dx, double dy, double dz) {
 	y += dy;
 	z += dz;
 
+	std::cout << "move to X:" << x << " Y:" << y << " Z:" << z << std::endl;
+
+	//EcCoordinateSystemTransformation pose;
+	//pose.setTranslationX(x);
+	//pose.setTranslationY(y);
+	//pose.setTranslationZ(z);
+	////printf("x: %f, y: %f, z: %f moving at %f step s");
+	//setEndEffectorSet(0);
+	//EcEndEffectorPlacement desiredPlacement(pose);
+
 	EcCoordinateSystemTransformation pose;
 	pose.setTranslationX(x);
 	pose.setTranslationY(y);
 	pose.setTranslationZ(z);
-	printf("x: %f, y: %f, z: %f moving at %f step s");
-	setEndEffectorSet(0);
+
+
+	EcOrientation orientation;
+	orientation.setFrom123Euler(0, 0, 0);
+	pose.setOrientation(orientation);
+	setEndEffectorSet(0); //point end effector set
+
 	EcEndEffectorPlacement desiredPlacement(pose);
 
-
+	setDesiredPlacement(desiredPlacement, 0, 0);
 
 	
 
