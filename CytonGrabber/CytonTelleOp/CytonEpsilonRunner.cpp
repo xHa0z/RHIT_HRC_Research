@@ -181,7 +181,11 @@ bool CytonEpsilonRunner::moveTo(double x, double y, double z) {
 
 	std::cout << "move to X:" << x << " Y:" << y << " Z:" << z << std::endl;
 
+	EcManipulatorEndEffectorPlacement actualEEPlacement;
 	EcCoordinateSystemTransformation pose;
+	EcCoordinateSystemTransformation offset, zero, actualCoord;
+	zero.setTranslation(EcVector(0, 0, 0));
+
 	pose.setTranslationX(x);
 	pose.setTranslationY(y);
 	pose.setTranslationZ(z);
@@ -196,6 +200,111 @@ bool CytonEpsilonRunner::moveTo(double x, double y, double z) {
 
 	setDesiredPlacement(desiredPlacement, 0, 0);
 
+	EcU32 timeout = 5000;
+	EcU32 interval = 10;
+	EcU32 count = 0;
+	EcBoolean achieved = EcFalse;
+	while (!achieved && !(count >= timeout / interval))
+	{
+		EcSLEEPMS(interval);
+		count++;
+
+		getActualPlacement(actualEEPlacement);
+		if (actualEEPlacement.offsetTransformations().size() < 1)
+		{
+			return EcFalse;
+		}
+		actualCoord = actualEEPlacement.offsetTransformations()[0].coordSysXForm();
+
+		//get the transformation between the actual and desired 
+		offset = (actualCoord.inverse()) * pose;
+		
+
+		if (offset.approxEq(zero, .00001))
+		{
+			achieved = EcTrue;
+		}
+
+	}
+
 
 	return true;
+}
+
+bool CytonEpsilonRunner::grabMode() {
+
+	EcOrientation orientation; 
+	EcCoordinateSystemTransformation pose;
+
+	//roll about x-axis, pitch about y-axis,Yaw about z-axis
+	orientation.setFrom123Euler(0, 0, 0);
+
+	pose.setOrientation(orientation);
+	EcEndEffectorPlacement desiredPlacement(pose);
+
+	setDesiredPlacement(desiredPlacement, 0, 0);
+
+	return true;
+}
+
+bool CytonEpsilonRunner::moveGripper(const EcReal gripperPos) {
+
+	EcManipulatorEndEffectorPlacement actualEEPlacement, desiredEEPlacement;
+	//switch to frame ee set, so the link doesnt move when we try and grip
+
+	setEndEffectorSet(FRAME_EE_SET);
+	EcSLEEPMS(100);
+	//get the current placement of the end effectors
+	getActualPlacement(actualEEPlacement);
+
+	//0 is the Wrist roll link (point or frame end effector), 
+	//1 is the first gripper finger link (linear constraint end effector)
+	EcEndEffectorPlacementVector state = actualEEPlacement.offsetTransformations();
+
+	if (state.size() < 2)
+	{
+		return EcFalse;
+	}
+
+	//set the translation of the driving gripper finger
+	EcCoordinateSystemTransformation gripperfinger1trans = state[1].coordSysXForm();
+	gripperfinger1trans.setTranslation(EcVector(0, 0, gripperPos));
+	EcEndEffectorPlacement finger1placement = state[1];
+	finger1placement.setCoordSysXForm(gripperfinger1trans);
+	state[1] = finger1placement;
+
+	desiredEEPlacement.setOffsetTransformations(state);
+
+	//set the desired placement
+	setDesiredPlacement(desiredEEPlacement, 0);
+
+	// if it hasnt been achieved after 2 sec, return false
+	EcU32 timeout = 2000;
+	EcU32 interval = 10;
+	EcU32 count = 0;
+	EcBoolean achieved = EcFalse;
+	while (!achieved && !(count >= timeout / interval))
+	{
+		EcSLEEPMS(interval);
+		count++;
+
+		//std::cout << "Moving " << std::endl;
+
+		getActualPlacement(actualEEPlacement);
+		EcEndEffectorPlacementVector currentState = actualEEPlacement.offsetTransformations();
+		EcCoordinateSystemTransformation gripperfinger1trans = currentState[1].coordSysXForm();
+		EcReal difference = std::abs(gripperPos - gripperfinger1trans.translation().z());
+		//std::cout << "distance between actual and desired: " << difference << std::endl;
+
+		if (difference < .000001)
+		{
+			achieved = EcTrue;
+		}
+	}
+	std::cout << (achieved ? "Achieved Gripper Position" : "Failed to Achieve Gripper Position") << std::endl;
+	return achieved;
+
+
+	//return false;
+
 }

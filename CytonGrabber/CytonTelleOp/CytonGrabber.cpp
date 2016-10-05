@@ -56,10 +56,17 @@ int main()
 
 		std::cout << "X: " << x << " Y: " << y << " Z: " << z << std::endl;
 
-		runs->moveTo(x, y, z);//move to general position
+
+		runs->moveGripper(0.01);
+		runs->moveTo(x, y, z+0.040);//move to general position
 		//Instead move above object, orient gripper, then lower to grab
+		runs->grabMode();
 		//TODO: actually move to position and grasp object
+		runs->moveTo(x, y, z);
+		runs->moveGripper(0.007);
 		//TODO: decide what to do with object after grabbing
+		runs->moveTo(0.3,0,0.1);
+		runs->moveGripper(0.01);
 
 	}
 	runs->shutdown();
