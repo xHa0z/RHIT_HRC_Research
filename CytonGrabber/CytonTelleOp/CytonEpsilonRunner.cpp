@@ -231,10 +231,14 @@ bool CytonEpsilonRunner::moveTo(double x, double y, double z) {
 	return true;
 }
 
+
+
+
 bool CytonEpsilonRunner::grabMode() {
 
 	EcOrientation orientation; 
 	EcCoordinateSystemTransformation pose;
+	EcManipulatorEndEffectorPlacement actualEEPlacement;
 
 	//roll about x-axis, pitch about y-axis,Yaw about z-axis
 	orientation.setFrom123Euler(0, 0, 0);
@@ -243,9 +247,25 @@ bool CytonEpsilonRunner::grabMode() {
 	EcEndEffectorPlacement desiredPlacement(pose);
 
 	setDesiredPlacement(desiredPlacement, 0, 0);
+	EcU32 timeout = 5000;
+	EcU32 interval = 10;
+	EcU32 count = 0;
+	EcBoolean achieved = EcFalse;
+	while (!achieved && !(count >= timeout / interval))
+	{
+		EcSLEEPMS(interval);
+		count++;
+
+		//std::cout << "Moving " << std::endl;
+		//getActualPlacement(actualEEPlacement);
+	}
 
 	return true;
 }
+
+
+
+
 
 bool CytonEpsilonRunner::moveGripper(const EcReal gripperPos) {
 
