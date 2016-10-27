@@ -65,7 +65,7 @@ int main()
 		runs->moveTo(x, y, z);
 		runs->moveGripper(0.007);
 		//TODO: decide what to do with object after grabbing
-		runs->moveTo(0.3,0,0.1);
+		runs->moveTo(0.3,0.3,0.6);
 		runs->moveGripper(0.01);
 
 	}
