@@ -1,6 +1,8 @@
 ## Week 1 Memo
 From: Zhihao Xue
+
 Date: Sept.06 - Sept.13
+
 To: Dr. Berry
 
 ----
