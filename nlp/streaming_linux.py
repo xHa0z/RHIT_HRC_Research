@@ -272,7 +272,7 @@ def listen_print_loop(recognize_stream):
 
         # Exit recognition if any of the transcribed phrases could be
         # one of our keywords.
-        if any(re.search(r'\b(finish)\b', alt.transcript, re.I)
+        if any(re.search(r'\b(finish|finished)\b', alt.transcript, re.I)
                for result in resp.results
                for alt in result.alternatives):
 
@@ -280,7 +280,7 @@ def listen_print_loop(recognize_stream):
 
             if not os.path.isfile('out_file.txt'):
                 np.savetxt('out_file.txt', err_game, fmt='%1d')
-                os.system('pkill -9 python')
+                os.system('pkill -f streaming_linux.py')
 
 
             out_check = np.loadtxt('out_file.txt', dtype = 'int')
@@ -291,7 +291,7 @@ def listen_print_loop(recognize_stream):
             if np.array_equal(out_check, current_game):
 
                 np.savetxt('out_file.txt', err_game, fmt='%1d')
-            os.system('pkill -9 python')
+            os.system('pkill -f streaming_linux.py')
             break
 
 
