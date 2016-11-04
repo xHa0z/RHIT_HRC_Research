@@ -51,7 +51,9 @@ SPEECH_SCOPE = 'https://www.googleapis.com/auth/cloud-platform'
 
 
 # game board, 0 - nothing, 1 - red, 2 - green, 3 - blue
-game = np.matrix([[0,1,2,3],[0,0,0,2],[2,2,3,1],[1,0,0,3]])
+game = np.loadtxt('game.txt', dtype = 'int')
+
+print (game)
 
 
 
@@ -178,7 +180,7 @@ def request_stream(data_stream, rate):
 
 def listen_print_loop(recognize_stream):
 
-    game = np.array([[0,1,2,3],[0,0,0,2],[2,2,3,1],[1,0,0,3]])
+    # game = np.array([[0,1,2,3],[0,0,0,2],[2,2,3,1],[1,0,0,3]])
     
     i = 0
     
@@ -271,12 +273,13 @@ def listen_print_loop(recognize_stream):
                for result in resp.results
                for alt in result.alternatives):
 
-            temp_game = temp_game
-            
-            if not np.array_equal(temp_game, game):
-                np.savetxt('out_file.txt', temp_game, fmt='%1d')
-            else:
-                err_game = np.array([[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1]])
+            out_check = np.loadtxt('out_file.txt', dtype = 'int')
+            current_game = np.loadtxt('game.txt', dtype = 'int')
+            print (out_check)
+            print (current_game)
+            err_game = np.array([[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1]])
+            if np.array_equal(out_check, current_game):
+
                 np.savetxt('out_file.txt', err_game, fmt='%1d')
             os.system('pkill -9 python')
             break
