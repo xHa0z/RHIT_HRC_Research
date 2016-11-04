@@ -15,8 +15,8 @@ NLPMatrixInit = "0,0,0,0\n0,0,0,0\n0,0,0,0\n0,0,0,0"
 
 # while stopStatement == false:
 NLPMatrix = getMatrixFromFile(NLPTextFileName)
-probabilityMatrix, maxNumberIndex = multiplyMatrices(NLPMatrix, NLPMatrix)
 bool = checkMatrix(NLPMatrix)
 if bool == False:
-    # send information to Devon's code
+    return str("Didn't catch that.")
+probabilityMatrix, maxNumberIndex = multiplyMatrices(NLPMatrix, NLPMatrix)
 # resetTextFile(NLPTextFileName, NLPMatrixInit)
