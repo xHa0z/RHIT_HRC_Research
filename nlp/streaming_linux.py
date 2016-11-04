@@ -275,8 +275,8 @@ def listen_print_loop(recognize_stream):
 
             out_check = np.loadtxt('out_file.txt', dtype = 'int')
             current_game = np.loadtxt('game.txt', dtype = 'int')
-            print (out_check)
-            print (current_game)
+            # print (out_check)
+            # print (current_game)
             err_game = np.array([[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1]])
             if np.array_equal(out_check, current_game):
 
