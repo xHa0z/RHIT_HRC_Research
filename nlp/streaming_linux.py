@@ -25,6 +25,7 @@ import json
 import os
 import datetime
 import sys
+import datetime
 
 
 import numpy as np
@@ -185,15 +186,17 @@ def listen_print_loop(recognize_stream):
     i = 0
     
     print (game)
-
+    current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    print (current_time)
     cwd = os.getcwd()
-    out_path = cwd+'/log/'
+    out_path = cwd+'/log/' + current_time + '/'
 
     out_file = cwd + 'game' + '.txt'
     # datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
 
-
-    
+    if os.path.isfile('out_file.txt'):
+        os.remove('out_file.txt')
+        
     for resp in recognize_stream:
 
 
@@ -273,11 +276,18 @@ def listen_print_loop(recognize_stream):
                for result in resp.results
                for alt in result.alternatives):
 
+            err_game = np.array([[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1]])
+
+            if not os.path.isfile('out_file.txt'):
+                np.savetxt('out_file.txt', err_game, fmt='%1d')
+                os.system('pkill -9 python')
+
+
             out_check = np.loadtxt('out_file.txt', dtype = 'int')
             current_game = np.loadtxt('game.txt', dtype = 'int')
             # print (out_check)
             # print (current_game)
-            err_game = np.array([[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1]])
+            
             if np.array_equal(out_check, current_game):
 
                 np.savetxt('out_file.txt', err_game, fmt='%1d')
