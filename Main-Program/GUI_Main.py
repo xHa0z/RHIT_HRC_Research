@@ -158,7 +158,7 @@ def GUI_Main():
     text_box.insert(1.0, 'Box Number Selected: ' + '\n' + \
                     'Robot Status: ')
     
-    NLP_Main()
+    NLP_Flag = NLP_Main()
     root.mainloop()
     
 def NLP_Main():
