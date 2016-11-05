@@ -1,154 +1,57 @@
-# Google Cloud Speech GRPC API Samples
+# Speech To Text Conversion and Natural Language Processing 
 
-These samples show how to use the [Google Cloud Speech API][speech-api]
-to transcribe audio files, as well as live audio from your computer's
-microphone.
+This part is inspired by Google Cloud Speech gRPC APIs
+For details about this API, please REFER to [Google Cloud Speech API](http://cloud.google.com/speech). 
 
-[speech-api]: http://cloud.google.com/speech
+What this part does is to use Google Cloud Speech API to analyze user's voice command, and base on this command to generate related output matrix. 
 
 ## Prerequisites
 
-### Enable the Speech API
+### Enable and configure Google Cloud Speech API
 
-If you have not already done so, [enable the Google Cloud Speech
-API][console-speech] for your project.
+Please follow [this instruction](https://github.com/GoogleCloudPlatform/python-docs-samples/blob/master/speech/grpc/README.rst) to enable and setup Google API.
 
-[console-speech]: https://console.cloud.google.com/apis/api/speech.googleapis.com/overview?project=_
+#### Windows user
+The above instruction is mainly for Mac and Linux users. 
+For Windows users, the configuration is similar. Go to 'My Computer' -> right click 'properties' -> click 'Advanced system setting' on left sidebar -> click 'Environment Variables...' at the bottom -> create a new environment variable named 'GOOGLE_APPLICATION_CREDENTIALS' and set proper credential path.
+Then you are ready to use Google API. 
 
-### Authentication
+### Numpy Package
 
-These samples use service accounts for authentication.
-
-* Visit the [Cloud Console][cloud-console], and navigate to:
-
-    `API Manager > Credentials > Create credentials > Service account key > New
-    service account`.
-* Create a new service account, and download the json credentials file.
-* Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to point to your
-  downloaded service account credentials:
-
-      export GOOGLE_APPLICATION_CREDENTIALS=/path/to/your/credentials-key.json
-
-  If you do not do this, the streaming sample will just sort of hang silently.
-
-See the [Cloud Platform Auth Guide][auth-guide] for more information.
-
-[cloud-console]: https://console.cloud.google.com
-[auth-guide]: https://cloud.google.com/docs/authentication#developer_workflow
-
-### Setup
-
-* Clone this repo
+In this program, we use numpy package to deal with some matrix operations and file IO handling. To install numpy package:
+* Mac and Linux user:
 
   ```sh
-  git clone https://github.com/GoogleCloudPlatform/python-docs-samples.git
-  cd python-docs-samples/speech/grpc
+  pip install numpy
   ```
-  
-* If you don't have it already, install [virtualenv][virtualenv].
+
+* Windows user:
 
   ```sh
-  pip install virtualenv
+  python -m pip install numpy
   ```
 
-* Create a [virtualenv][virtualenv]. This isolates the python dependencies
-  you're about to install, to minimize conflicts with any existing libraries you
-  might already have.
+## Usage and Procedure
 
-  ```sh
-  virtualenv env
-  source env/bin/activate
-  ```
+This program needs one text file as input and generate a text as output and use this output file to communicate with Main program.
 
-* Install [PortAudio][portaudio]. The `transcribe_streaming.py` sample uses the
-  [PyAudio][pyaudio] library to stream audio from your computer's
-  microphone. PyAudio depends on PortAudio for cross-platform compatibility, and
-  is installed differently depending on the platform. For example:
-
-  * For Mac OS X, you can use [Homebrew][brew]:
-
-    ```sh
-    brew install portaudio
-    ```
-
-  * For Debian / Ubuntu Linux:
-
-    ```sh
-    apt-get install portaudio19-dev python-all-dev
-    ```
-
-  * Windows may work without having to install PortAudio explicitly (it will get
-    installed with PyAudio, when you run `python -m pip install ...` below).
-
-  * For more details, see the [PyAudio installation][pyaudio-install] page.
-
-* Install the python dependencies:
-
-    ```sh
-    pip install -r requirements.txt
-    ```
-
-[pyaudio]: https://people.csail.mit.edu/hubert/pyaudio/
-[portaudio]: http://www.portaudio.com/
-[pyaudio-install]: https://people.csail.mit.edu/hubert/pyaudio/#downloads
-[pip]: https://pip.pypa.io/en/stable/installing/
-[virtualenv]: https://virtualenv.pypa.io/en/stable/installation/
-[brew]: http://brew.sh
-
-### Troubleshooting
-
-#### PortAudio on OS X
-
-If you see the error
-
-    fatal error: 'portaudio.h' file not found
-
-Try adding the following to your `~/.pydistutils.cfg` file,
-substituting in your appropriate brew Cellar directory:
-
-    include_dirs=/usr/local/Cellar/portaudio/19.20140130/include/
-    library_dirs=/usr/local/$USER/homebrew/Cellar/portaudio/19.20140130/lib/
-
-## Run the sample
-
-* To run the `transcribe_streaming.py` sample:
-
-    ```sh
-    python transcribe_streaming.py
-    ```
-
-    The sample will run in a continuous loop, printing the data and metadata
-    it receives from the Speech API, which includes alternative transcriptions
-    of what it hears, and a confidence score. Say "exit" to exit the loop.
-
-* To run the `transcribe_async.py` sample:
-
-    ```sh
-    $ python transcribe_async.py gs://python-docs-samples-tests/speech/audio.flac
-    ```
-
-    You should see a response with the transcription result.
-
-* To run the `transcribe.py` sample:
-
-    ```sh
-    $ python transcribe.py gs://python-docs-samples-tests/speech/audio.flac
-    ```
-
-    You should see a response with the transcription result.
-
-* Note that `gs://python-docs-samples-tests/speech/audio.flac` is the path to a
-  sample audio file, and you can transcribe your own audio files using this
-  method by uploading them to [Google Cloud Storage][gcs]. (The [gsutil][gsutil]
-  tool is often used for this purpose.)
-
-[gcs]: https://cloud.google.com/storage
-[gsutil]: https://cloud.google.com/storage/docs/gsutil
-
-### Deactivate virtualenv
-
-When you're done running the sample, you can exit your virtualenv:
-
+The input text file, named 'game.txt', record a 4 by 4 matrix. This file should be generated from the GUI, and tell this program where are these color blocks located and delimited with single space. A sample file is look like:
+```sh
+0 0 2 3
+1 0 2 1
+3 3 1 2
+2 0 1 3
 ```
-deactivate
-```
+
+Where 0 means no block here, 1 means red block, 2 means green block and 3 means blue block.
+
+When the program runs, it will first load this game board. If it detects a proper movement command from sample command list, such as 'pick up a green block', it will generate a 4 by 4 0 and 1 matrix, where 0 indicates there is no green block at this coordinate and 1 indicates there is a green block. Then, save this matrix to the output file 'out_file.txt'.
+
+The program will exit and jump back to Main when user says 'finish'.
+
+#### Error Handling
+
+If something wrong with user's command, such as user gives multiple instructions in one session or gives no instruction, a 4 by 4 matrix with all -1 will be generated and save into 'out_file.txt' to tell Main there is something wrong in this part. User need to repeat this procedure again.
+
+
+
