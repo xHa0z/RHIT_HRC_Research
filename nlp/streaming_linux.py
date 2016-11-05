@@ -229,10 +229,12 @@ def listen_print_loop(recognize_stream):
                for result in resp.results
                for alt in result.alternatives):
                 temp_game = game
-                for i in range(4):
-                    for j in range(4):
-                        if(temp_game[i,j] != 1):
-                            temp_game[i,j] = 0
+                temp_game[temp_game != 1] = 0
+                temp_game[temp_game == 1] = 1
+                # for i in range(4):
+                #     for j in range(4):
+                #         if(temp_game[i,j] != 1):
+                #             temp_game[i,j] = 0
 
                 print (temp_game)
 
@@ -240,24 +242,28 @@ def listen_print_loop(recognize_stream):
                for result in resp.results
                for alt in result.alternatives):
                 temp_game = game
-                for i in range(4):
-                    for j in range(4):
-                        if(temp_game[i,j] != 2):
-                            temp_game[i,j] = 0
-                        else:
-                            temp_game[i,j] = 1    
+                temp_game[temp_game != 2] = 0
+                temp_game[temp_game == 2] = 1
+                # for i in range(4):
+                #     for j in range(4):
+                #         if(temp_game[i,j] != 2):
+                #             temp_game[i,j] = 0
+                #         else:
+                #             temp_game[i,j] = 1    
                 print (temp_game)
 
             if any(re.search(r'\b(blue)\b', alt.transcript, re.I)
                for result in resp.results
                for alt in result.alternatives):
                 temp_game = game
-                for i in range(4):
-                    for j in range(4):
-                        if(temp_game[i,j] != 3):
-                            temp_game[i,j] = 0  
-                        else:
-                            temp_game[i,j] = 1
+                temp_game[temp_game != 3] = 0
+                temp_game[temp_game == 3] = 1
+                # for i in range(4):
+                #     for j in range(4):
+                #         if(temp_game[i,j] != 3):
+                #             temp_game[i,j] = 0  
+                #         else:
+                #             temp_game[i,j] = 1
 
                 print (temp_game)
             # return_matrix = open('out_file.txt', 'w')
@@ -277,6 +283,7 @@ def listen_print_loop(recognize_stream):
                for alt in result.alternatives):
 
             err_game = np.array([[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1]])
+            multi_commands = np.array([[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]])
 
             if not os.path.isfile('out_file.txt'):
                 np.savetxt('out_file.txt', err_game, fmt='%1d')
@@ -288,7 +295,7 @@ def listen_print_loop(recognize_stream):
             # print (out_check)
             # print (current_game)
             
-            if np.array_equal(out_check, current_game):
+            if np.array_equal(out_check, current_game) or np.array_equal(out_check, multi_commands):
 
                 np.savetxt('out_file.txt', err_game, fmt='%1d')
             os.system('pkill -f streaming_linux.py')
