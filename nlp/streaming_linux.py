@@ -231,10 +231,6 @@ def listen_print_loop(recognize_stream):
                 temp_game = game
                 temp_game[temp_game != 1] = 0
                 temp_game[temp_game == 1] = 1
-                # for i in range(4):
-                #     for j in range(4):
-                #         if(temp_game[i,j] != 1):
-                #             temp_game[i,j] = 0
 
                 print (temp_game)
 
@@ -244,12 +240,6 @@ def listen_print_loop(recognize_stream):
                 temp_game = game
                 temp_game[temp_game != 2] = 0
                 temp_game[temp_game == 2] = 1
-                # for i in range(4):
-                #     for j in range(4):
-                #         if(temp_game[i,j] != 2):
-                #             temp_game[i,j] = 0
-                #         else:
-                #             temp_game[i,j] = 1    
                 print (temp_game)
 
             if any(re.search(r'\b(blue)\b', alt.transcript, re.I)
@@ -258,17 +248,9 @@ def listen_print_loop(recognize_stream):
                 temp_game = game
                 temp_game[temp_game != 3] = 0
                 temp_game[temp_game == 3] = 1
-                # for i in range(4):
-                #     for j in range(4):
-                #         if(temp_game[i,j] != 3):
-                #             temp_game[i,j] = 0  
-                #         else:
-                #             temp_game[i,j] = 1
 
                 print (temp_game)
-            # return_matrix = open('out_file.txt', 'w')
-            # return_matrix.write(temp_game)
-            # return_matrix.close()
+
             np.savetxt('out_file.txt', temp_game, fmt='%1d')
             
 
@@ -292,8 +274,6 @@ def listen_print_loop(recognize_stream):
 
             out_check = np.loadtxt('out_file.txt', dtype = 'int')
             current_game = np.loadtxt('game.txt', dtype = 'int')
-            # print (out_check)
-            # print (current_game)
             
             if np.array_equal(out_check, current_game) or np.array_equal(out_check, multi_commands):
 
