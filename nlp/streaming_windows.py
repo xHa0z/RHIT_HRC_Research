@@ -187,6 +187,7 @@ def listen_print_loop(recognize_stream):
     i = 0
     
     print (game)
+    print (os.getpid())
     current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     print (current_time)
     cwd = os.getcwd()
@@ -265,13 +266,19 @@ def listen_print_loop(recognize_stream):
                for result in resp.results
                for alt in result.alternatives):
 
+
+            pid = os.getpid()
+            command = 'taskkill /F /pid ' + str(pid)
+
+            
             err_game = np.array([[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1]])
             multi_commands = np.array([[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]])
 
             if not os.path.isfile('out_file.txt'):
                 np.savetxt('out_file.txt', err_game, fmt='%1d')
                 # os.system('pkill -f streaming_linux.py')
-                break
+                os.system(command)
+
 
 
             out_check = np.loadtxt('out_file.txt', dtype = 'int')
@@ -280,8 +287,9 @@ def listen_print_loop(recognize_stream):
             if np.array_equal(out_check, current_game) or np.array_equal(out_check, multi_commands):
 
                 np.savetxt('out_file.txt', err_game, fmt='%1d')
-            
-            break
+            # pid = os.getpid()
+            # command = 'taskkill /F /pid ' + str(pid)
+            os.system(command)
 
 
 def main():
