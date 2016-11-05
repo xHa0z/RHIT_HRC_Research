@@ -43,8 +43,7 @@ def checkMatrix(matrix):
     This function checks whether the values in the specified matrix
     are all -1.
     """
-    falseMatrix = [[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1]]
-    if (matrix == falseMatrix):
+    if (matrix[0][0] == -1):
         return False
     return True
 
