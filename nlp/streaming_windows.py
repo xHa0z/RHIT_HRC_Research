@@ -51,11 +51,10 @@ DEADLINE_SECS = 60 * 10 + 5
 SPEECH_SCOPE = 'https://www.googleapis.com/auth/cloud-platform'
 
 
-
+# Load game from 'game.txt' file
 # game board, 0 - nothing, 1 - red, 2 - green, 3 - blue
 game = np.loadtxt('game.txt', dtype = 'int')
 
-print (game)
 
 
 
@@ -182,20 +181,18 @@ def request_stream(data_stream, rate):
 
 def listen_print_loop(recognize_stream):
 
-    # game = np.array([[0,1,2,3],[0,0,0,2],[2,2,3,1],[1,0,0,3]])
     
     i = 0
     
-    print (game)
+    # get current pid
     print (os.getpid())
+    # get current timestamps and convert to string
     current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    print (current_time)
     cwd = os.getcwd()
     out_path = cwd+'/log/' + current_time + '/'
 
-    out_file = cwd + 'game' + '.txt'
-    # datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
-
+   
+    # check is the 'out_file.txt' exist, if so, delete
     if os.path.isfile('out_file.txt'):
         os.remove('out_file.txt')
         
@@ -209,19 +206,17 @@ def listen_print_loop(recognize_stream):
 
         # Display the transcriptions & their alternatives
         for result in resp.results:
-            # print(result)
-            # print (result.alternatives[0].transcript)
             if not(os.path.exists(out_path)):
                 os.makedirs(out_path)
+            # save each captured voice command
             filename = out_path+'log_' + str(i) + '.txt'
-            print(result.alternatives[0].transcript)
+            # print(result.alternatives[0].transcript)
             log = open(filename, 'w')
             log.write(result.alternatives[0].transcript)
             log.close()
-            # print(result.alternatives[0].transcript, file = log)
             i += 1
 
-        
+        # extract desired color locations
         if any(re.search(r'\b(pick)\b', alt.transcript, re.I)
                for result in resp.results
                for alt in result.alternatives):
@@ -234,24 +229,24 @@ def listen_print_loop(recognize_stream):
                 temp_game[temp_game != 1] = 0
                 temp_game[temp_game == 1] = 1
 
-                print (temp_game)
+                
 
             if any(re.search(r'\b(green)\b', alt.transcript, re.I)
                for result in resp.results
                for alt in result.alternatives):
-                temp_game = game
+                
                 temp_game[temp_game != 2] = 0
                 temp_game[temp_game == 2] = 1
-                print (temp_game)
+                
 
             if any(re.search(r'\b(blue)\b', alt.transcript, re.I)
                for result in resp.results
                for alt in result.alternatives):
-                temp_game = game
+                
                 temp_game[temp_game != 3] = 0
                 temp_game[temp_game == 3] = 1
 
-                print (temp_game)
+                
 
             np.savetxt('out_file.txt', temp_game, fmt='%1d')
             
@@ -274,21 +269,19 @@ def listen_print_loop(recognize_stream):
             err_game = np.array([[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1]])
             multi_commands = np.array([[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]])
 
+            # check if the output file generated
             if not os.path.isfile('out_file.txt'):
                 np.savetxt('out_file.txt', err_game, fmt='%1d')
-                # os.system('pkill -f streaming_linux.py')
                 os.system(command)
 
 
 
             out_check = np.loadtxt('out_file.txt', dtype = 'int')
             current_game = np.loadtxt('game.txt', dtype = 'int')
-            
+            # check if there is an error in output file
             if np.array_equal(out_check, current_game) or np.array_equal(out_check, multi_commands):
 
                 np.savetxt('out_file.txt', err_game, fmt='%1d')
-            # pid = os.getpid()
-            # command = 'taskkill /F /pid ' + str(pid)
             os.system(command)
 
 
