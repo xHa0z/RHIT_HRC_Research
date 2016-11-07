@@ -23,7 +23,12 @@ int main()
 
 	while (looping) {
 		std::cout << "Type 'Exit' to stop" << std::endl;
-		std::cout << "Type a coordinate to pick up object in format 'x:y:z' in mm" << std::endl;
+		//std::cout << "Type a coordinate to pick up object in format 'x:y:z' in mm" << std::endl;
+
+		//Lecea's code below
+		std::cout << "Type a block to pick up" << std::endl;
+		//no more Lecea
+
 		std::cout << ">>";
 		std::string command1;
 		std::cin >> command1;
@@ -36,38 +41,204 @@ int main()
 			break;
 		}
 
-		if (strings.size() != 3) {
-			std::cout << "ERROR: improper number of inputs" << std::endl;
-			continue;
+		//COMMENT OUT EVERYTHING BELOW
+		//if (strings.size() != 3) {
+		//	std::cout << "ERROR: improper number of inputs" << std::endl;
+		//	continue;
+		//}
+		//double x, y, z;
+		//std::istringstream bufferX(strings.at(0));
+		//std::istringstream bufferY(strings.at(1));
+		//std::istringstream bufferZ(strings.at(2));
+		//bufferX >> x;
+		//bufferY >> y;
+		//bufferZ >> z;
+		//x = x / 1000.0;//convert from mm to m
+		//y = y / 1000.0;
+		//z = z / 1000.0;
+		//std::cout << "X: " << x << " Y: " << y << " Z: " << z << std::endl;
+		//runs->moveGripper(0.01);
+		//runs->moveTo(x, y, z);//move to general position
+		//Instead move above object, orient gripper, then lower to grab
+		//runs->grabMode();
+		//TODO: actually move to position and grasp object
+		//runs->moveTo(x, y+0.040, z);
+		//runs->moveTo(x, y, z);
+		//runs->moveGripper(0.002);
+		//runs->moveTo(0.3,0.3,0.2);
+		//runs->moveGripper(0.01);
+		//END OF COMMENTING
+
+		if (command1 == "1") {
+			std::cout << "***Going to block 1" << std::endl;
+			runs->moveGripper(0.01);
+			runs->moveTo(0, 0.4-0.04, 0.4,1);
+			runs->moveTo(0, 0.4, 0.4,1);
+			runs->moveGripper(0.002);
+			runs->moveTo(0, 0.4 - 0.04, 0.4, 1);
+			runs->moveTo(-0.1, 0.3, 0.15);
+			runs->moveGripper(0.01);
+		}
+		else if (command1 == "2") {
+			std::cout << "***Going to block 2" << std::endl;
+			runs->moveGripper(0.01);
+			runs->moveTo(0.1, 0.4-0.04, 0.4, 1);
+			runs->moveTo(0.1, 0.4, 0.4);
+			runs->moveGripper(0.002);
+			runs->moveTo(0.1, 0.4 - 0.04, 0.4, 1);
+		
+			runs->moveTo(-0.1, 0.3, 0.15);
+			runs->moveGripper(0.01);
+		}
+		else if (command1 == "3") {
+			std::cout << "***Going to block 3" << std::endl;
+			runs->moveGripper(0.01);
+			runs->moveTo(0.2, 0.4-0.04, 0.4, 1);
+			runs->moveTo(0.2, 0.4, 0.4, 1);
+			runs->moveGripper(0.002);
+			runs->moveTo(0.2, 0.4 - 0.04, 0.4, 1);
+			runs->moveTo(-0.1, 0.3, 0.15);
+			runs->moveGripper(0.01);
+		}
+		else if (command1 == "4") {
+			std::cout << "***Going to block 4" << std::endl;
+			runs->moveGripper(0.01);
+			runs->moveTo(0.25, 0.4-0.04, 0.4, 1);
+			runs->moveTo(0.25, 0.4, 0.4, 1);
+			runs->moveGripper(0.002);
+			runs->moveTo(0.25, 0.4 - 0.04, 0.4, 1);
+		
+			runs->moveTo(-0.1, 0.3, 0.15);
+			runs->moveGripper(0.01);
 		}
 		
-		double x, y, z;
-		std::istringstream bufferX(strings.at(0));
-		std::istringstream bufferY(strings.at(1));
-		std::istringstream bufferZ(strings.at(2));
+		else if (command1 == "5") {
+			std::cout << "***Going to block 5" << std::endl;
+			runs->moveGripper(0.01);
+			runs->moveTo(0, 0.4-0.04, 0.3, 1);
+			runs->moveTo(0, 0.4, 0.22, 1);
+			runs->moveGripper(0.002);
+			runs->moveTo(0, 0.4 - 0.04, 0.3, 1);	
 
-		bufferX >> x;
-		bufferY >> y;
-		bufferZ >> z;
-
-		x = x / 1000.0;//convert from mm to m
-		y = y / 1000.0;
-		z = z / 1000.0;
-
-		std::cout << "X: " << x << " Y: " << y << " Z: " << z << std::endl;
-
-
-		runs->moveGripper(0.01);
-		runs->moveTo(x, y, z+0.040);//move to general position
-		//Instead move above object, orient gripper, then lower to grab
-		runs->grabMode();
-		//TODO: actually move to position and grasp object
-		runs->moveTo(x, y, z);
-		runs->moveGripper(0.007);
-		//TODO: decide what to do with object after grabbing
-		runs->moveTo(0.3,0.3,0.6);
-		runs->moveGripper(0.01);
-
+			runs->moveTo(-0.1, 0.3, 0.15);
+			runs->moveGripper(0.01);
+		}
+		else if (command1 == "6") {
+			std::cout << "***Going to block 6" << std::endl;
+			runs->moveGripper(0.01);
+			runs->moveTo(0.1, 0.4-0.04, 0.3, 1);
+			runs->moveTo(0.1, 0.4, 0.3, 1);
+			runs->moveGripper(0.002);
+			runs->moveTo(0.1, 0.4 - 0.04, 0.3, 1);
+			
+			runs->moveTo(-0.1, 0.3, 0.15);
+			runs->moveGripper(0.01);
+		}
+		else if (command1 == "7") {
+			std::cout << "***Going to block 6" << std::endl;
+			runs->moveGripper(0.01);
+			runs->moveTo(0.2, 0.4-0.04, 0.3, 1);
+			runs->moveTo(0.2, 0.4, 0.3, 1);
+			runs->moveGripper(0.002);
+			runs->moveTo(0.2, 0.4 - 0.04, 0.3, 1);
+			runs->moveTo(-0.1, 0.3, 0.15);
+		    runs->moveGripper(0.01);
+		}
+		else if (command1 == "8") {
+			std::cout << "***Going to block 8" << std::endl;
+			runs->moveGripper(0.01);
+			runs->moveTo(0.3, 0.4-0.04, 0.3, 1);
+			runs->moveTo(0.3, 0.4, 0.3, 1);
+			runs->moveGripper(0.002);
+			runs->moveTo(0.3, 0.4 - 0.04, 0.3, 1);
+			
+			runs->moveTo(-0.1, 0.3, 0.15);
+			runs->moveGripper(0.01);
+		}
+		else if (command1 == "9") {
+			std::cout << "***Going to block 9" << std::endl;
+			runs->moveGripper(0.01);
+			runs->moveTo(0, 0.4 - 0.04, 0.14, 1);
+			runs->moveTo(0, 0.4, 0.14, 1);
+			runs->moveGripper(0.002);
+			runs->moveTo(0, 0.4 - 0.04, 0.14, 1);
+			runs->moveTo(-0.1, 0.3, 0.15);
+			runs->moveGripper(0.01);
+		}
+		else if (command1 == "10") {
+			std::cout << "***Going to block 10" << std::endl;
+			runs->moveGripper(0.01);
+			runs->moveTo(0.1, 0.4 - 0.04, 0.14, 1);
+			runs->moveTo(0.1, 0.4, 0.14, 1);
+			runs->moveGripper(0.002);
+			runs->moveTo(0.1, 0.4 - 0.04, 0.14, 1);
+			runs->moveTo(-0.1, 0.3, 0.15);
+			runs->moveGripper(0.01);
+		}
+		else if (command1 == "11") {
+			std::cout << "***Going to block 11" << std::endl;
+			runs->moveGripper(0.01);
+			runs->moveTo(0.2, 0.4 - 0.04, 0.14, 1);
+			runs->moveTo(0.2, 0.4, 0.14, 1);
+			runs->moveGripper(0.002);
+			runs->moveTo(0.2, 0.4 - 0.04, 0.14, 1);
+			runs->moveTo(-0.1, 0.3, 0.15);
+			runs->moveGripper(0.01);
+		}
+		else if (command1 == "12") {
+			std::cout << "***Going to block 12" << std::endl;
+			runs->moveGripper(0.01);
+			runs->moveTo(0.3, 0.4 - 0.04, 0.14, 1);
+			runs->moveTo(0.3, 0.4, 0.14, 1);
+			runs->moveGripper(0.002);
+			runs->moveTo(0.3, 0.4 - 0.04, 0.14, 1);
+			runs->moveTo(-0.1, 0.3, 0.15);
+			runs->moveGripper(0.01);
+		}
+		else if (command1 == "13") {
+			std::cout << "***Going to block 13" << std::endl;
+			runs->moveGripper(0.01);
+			runs->moveTo(0, 0.4 - 0.04, 0.06, 1);
+			runs->moveTo(0, 0.4, 0.06, 1);
+			runs->moveGripper(0.002);
+			runs->moveTo(0, 0.4 - 0.04, 0.06, 1);
+			runs->moveTo(-0.1, 0.3, 0.15);
+			runs->moveGripper(0.01);
+		}
+		else if (command1 == "14") {
+			std::cout << "***Going to block 14" << std::endl;
+			runs->moveGripper(0.01);
+			runs->moveTo(0.1, 0.4 - 0.04, 0.06, 1);
+			runs->moveTo(0.1, 0.4, 0.06, 1);
+			runs->moveGripper(0.002);
+			runs->moveTo(0.1, 0.4 - 0.04, 0.06, 1);
+			runs->moveTo(-0.1, 0.3, 0.15);
+			runs->moveGripper(0.01);
+		}
+		else if (command1 == "15") {
+			std::cout << "***Going to block 13" << std::endl;
+			runs->moveGripper(0.01);
+			runs->moveTo(0.2, 0.4 - 0.04, 0.06, 0);
+			runs->moveTo(0.2, 0.4, 0.06, 1);
+			runs->moveGripper(0.002);
+			runs->moveTo(0.2, 0.4 - 0.04, 0.06, 1);
+			runs->moveTo(-0.1, 0.3, 0.15);
+			runs->moveGripper(0.01);
+		}
+		else if (command1 == "16") {
+			std::cout << "***Going to block 16" << std::endl;
+			runs->moveGripper(0.01);
+			runs->moveTo(0.3, 0.4 - 0.04, 0.06, 1);
+			runs->moveTo(0.3, 0.4, 0.1, 1);
+			runs->moveGripper(0.002);
+			runs->moveTo(0.3, 0.4 - 0.04, 0.06, 1);
+			runs->moveTo(-0.1, 0.3, 0.15);
+			runs->moveGripper(0.01);
+		}
+		else  {
+			std::cout << "WRONG!!!" << std::endl;
+		
+		}
 	}
 	runs->shutdown();
 

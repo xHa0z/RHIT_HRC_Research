@@ -9,7 +9,7 @@ public:
 	bool shutdown();
 	bool goToJointHome();
 	bool moveDelta(double x, double y, double z);
-	bool moveTo(double x, double y, double z);
+	bool moveTo(double x, double y, double z, int method = 0);
 	bool grabMode();
 	bool moveGripper(EcReal);
 

@@ -177,7 +177,7 @@ bool CytonEpsilonRunner::moveDelta(double dx, double dy, double dz) {
 }
 
 //Tells the robot to move in the specified direction
-bool CytonEpsilonRunner::moveTo(double x, double y, double z) {
+bool CytonEpsilonRunner::moveTo(double x, double y, double z, int method) {
 
 	std::cout << "move to X:" << x << " Y:" << y << " Z:" << z << std::endl;
 
@@ -192,15 +192,16 @@ bool CytonEpsilonRunner::moveTo(double x, double y, double z) {
 
 
 	EcOrientation orientation;
-	orientation.setFrom123Euler(0, 0, 0);
+	orientation.setFrom123Euler(1.5, 0, 0);
 	pose.setOrientation(orientation);
-	setEndEffectorSet(0); //point end effector set
+	setEndEffectorSet(method); //point end effector set
 
 	EcEndEffectorPlacement desiredPlacement(pose);
 
 	setDesiredPlacement(desiredPlacement, 0, 0);
 
-	EcU32 timeout = 5000;
+	//EcU32 timeout = 5000;
+	EcU32 timeout = 3000;
 	EcU32 interval = 10;
 	EcU32 count = 0;
 	EcBoolean achieved = EcFalse;
@@ -241,13 +242,13 @@ bool CytonEpsilonRunner::grabMode() {
 	EcManipulatorEndEffectorPlacement actualEEPlacement;
 
 	//roll about x-axis, pitch about y-axis,Yaw about z-axis
-	orientation.setFrom123Euler(0, 0, 0);
+	orientation.setFrom123Euler(1.5, 0, 0);
 
 	pose.setOrientation(orientation);
 	EcEndEffectorPlacement desiredPlacement(pose);
 
-	setDesiredPlacement(desiredPlacement, 0, 0);
-	EcU32 timeout = 5000;
+	//setDesiredPlacement(desiredPlacement, 100, 100);
+	EcU32 timeout = 3000;
 	EcU32 interval = 10;
 	EcU32 count = 0;
 	EcBoolean achieved = EcFalse;
