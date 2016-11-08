@@ -19,23 +19,20 @@ int main()
 		myInFile.open("test.txt");
 
 		getline(myInFile, line);
-		i++;
-
 		myInFile.close();
+
+
 		if (line == "DONE") {
 			std::cout << "Recieved DONE" << std::endl;
-			std::cout << "Sending command: com:" << i << std::endl;
-			std::cout << std::endl;
-			completedCommand = true;
-		}
-
-		if (completedCommand) {
 			ofstream myOutFile;
 			myOutFile.open("test.txt");
-			myOutFile << "com:" << i;
+			std::string temp;
+			temp = std::cin.get();
+			myOutFile << temp;
 			myOutFile.close();
-			completedCommand = false;
+			std::cout << "sent: " << temp <<std::endl;
 		}
+
 
 		Sleep(1000);
 	}

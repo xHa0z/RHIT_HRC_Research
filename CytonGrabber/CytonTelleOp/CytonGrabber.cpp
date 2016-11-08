@@ -6,6 +6,11 @@
 #include <Windows.h>
 #include <boost/algorithm/string.hpp>
 
+//file reading includes
+#include <iostream>
+#include <fstream>
+#include <string>
+
 int main()
 {
 	CytonEpsilonRunner *runs = new CytonEpsilonRunner();
@@ -18,27 +23,56 @@ int main()
 		return 0;
 	}
 
+	std::cout << "Run in debug mode? y/n" << std::endl;
+	char temp = std::cin.get();
+	bool debugMode = false;
+	if (temp == 'n') {
+		debugMode = false;
+	}
+	else if (temp == 'y') {
+		debugMode = true;
+	}
+	else {
+		std::cout << "command not recognized, defaulting to normal mode" << std::endl;
+	}
+	std::cout << "hi" << std::endl;
+
 	bool looping = true;
 	std::cout << "Press Escape to disconnect" << std::endl;
 
 	while (looping) {
-		std::cout << "Type 'Exit' to stop" << std::endl;
-		//std::cout << "Type a coordinate to pick up object in format 'x:y:z' in mm" << std::endl;
-
-		//Lecea's code below
-		std::cout << "Type a block to pick up" << std::endl;
-		//no more Lecea
-
-		std::cout << ">>";
 		std::string command1;
-		std::cin >> command1;
+		if (debugMode) {
+			std::cout << "Type 'Exit' to stop" << std::endl;
+			//std::cout << "Type a coordinate to pick up object in format 'x:y:z' in mm" << std::endl;
 
-		std::vector<std::string> strings;
-		boost::split(strings, command1, boost::is_any_of(":"));
+			//Lecea's code below
+			std::cout << "Type a block to pick up" << std::endl;
+			//no more Lecea
+
+			std::cout << ">>";
+			std::cin >> command1;
+
+			std::vector<std::string> strings;
+			boost::split(strings, command1, boost::is_any_of(":"));
+
+		}
+		else {
+			std::ifstream myInFile;
+			myInFile.open("test.txt");
+
+			std::getline(myInFile, command1);
+			myInFile.close();
+		}
 		
 		if (command1 == "Exit") {
 			std::cout << "Goodbye" << std::endl;
 			break;
+		}
+
+		if (command1 == "" || command1 == "DONE" || command1 == "WORKING") {
+			//do nothing
+			continue;
 		}
 
 		//COMMENT OUT EVERYTHING BELOW
@@ -69,7 +103,7 @@ int main()
 		//runs->moveGripper(0.01);
 		//END OF COMMENTING
 
-		if (command1 == "1") {
+		else if (command1 == "1") {
 			std::cout << "***Going to block 1" << std::endl;
 			runs->moveGripper(0.01);
 			runs->moveTo(0, 0.4-0.04, 0.4,1);
@@ -237,8 +271,13 @@ int main()
 		}
 		else  {
 			std::cout << "WRONG!!!" << std::endl;
-		
 		}
+
+		//send back that we are done
+		std::ofstream myOutFile;
+		myOutFile.open("test.txt");
+		myOutFile << "DONE\n";
+		myOutFile.close();
 	}
 	runs->shutdown();
 
