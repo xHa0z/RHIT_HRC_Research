@@ -30,7 +30,7 @@ import datetime
 import sys
 import signal
 import datetime
-
+from threading import Thread
 
 
 from google.cloud import credentials
@@ -47,6 +47,7 @@ from MainFunctions import getMatrixFromFile, \
                           checkMatrix, \
                           resetTextFile
 
+import modular_prob_dist_sliding_window as lpp
 
                           
 # Array to hold all of the boxes in
@@ -124,7 +125,8 @@ def box_removal(box, data, canvas):
     number = int(data.box.get())
 
     canvas.delete(box[number])
-
+    
+    
 def GUI_Main():
     data = Data()
 
@@ -171,8 +173,14 @@ def GUI_Main():
     
     NLP_Start_Button = ttk.Button(secondary_frame,
                                      text='Start NLP')
-    NLP_Start_Button.grid(row=3, column=0, sticky=W,pady=5)
+    NLP_Start_Button.grid(row=4, column=0, sticky=W,pady=5)
     NLP_Start_Button['command'] = lambda: os.system('streaming_windows.py')
+    
+    Leap_Motion_Button = ttk.Button(secondary_frame,
+                                     text='Start Leap Motion')
+    Leap_Motion_Button.grid(row=5, column=0, sticky=W,pady=5)
+    Leap_Motion_Button['command'] = lambda: os.system('modular_prob_dist_sliding_window.py')
+
     
 #     NLP_Stop_Button = ttk.Button(secondary_frame,
 #                                      text='Stop NLP')
@@ -182,18 +190,19 @@ def GUI_Main():
 
     reset_button = ttk.Button(secondary_frame,
                                      text='Reset Board')
-    reset_button.grid(row=4, column=0, sticky=W,pady=5)
+    reset_button.grid(row=6, column=0, sticky=W,pady=5)
     reset_button['command'] = lambda: restart(canvas, box)
 
     start_button = ttk.Button(secondary_frame,
                                      text='Start Board')
-    start_button.grid(row=5, column=0, sticky=W,pady=5)
+    start_button.grid(row=3, column=0, sticky=W,pady=5)
     start_button['command'] = lambda: start(canvas)
 
     # Calls the function to create the grid on the canvas
     grid(canvas)
     
     NLP_Flag = NLP_Main()
+
     
     # What is put into the text box
     text_box.insert(1.0, 'Box Number Selected: ' + str(NLP_Flag) + '\n' + \
