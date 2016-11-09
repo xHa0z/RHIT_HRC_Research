@@ -12,19 +12,46 @@ Date Created: 10/31/2016
 Last Modified Date: 11/4/2016
 '''
 
+from __future__ import division
+from __future__ import print_function
+
 import Tkinter
 from Tkinter import *
 import ttk
+import numpy as np
+
+import contextlib
+import re
+import signal
+import threading
+import json
+import os
+import datetime
+import sys
+import signal
+import datetime
+
+
+
+from google.cloud import credentials
+from google.cloud.speech.v1beta1 import cloud_speech_pb2 as cloud_speech
+from google.rpc import code_pb2
+from grpc.beta import implementations
+from grpc.framework.interfaces.face import face
+import pyaudio
+from six.moves import queue
+
 
 from MainFunctions import getMatrixFromFile, \
                           multiplyMatrices, \
                           checkMatrix, \
                           resetTextFile
-                          
+
 
                           
 # Array to hold all of the boxes in
 box = []
+box_new = [0]*16
 
 '''
 Begins the game and board. Also adds number to the boxes.
@@ -53,7 +80,19 @@ def start(canvas):
     for k in range(16):
         if canvas.itemcget(box[k], "fill") == "white":
             canvas.delete(box[k])
+            box_new[k] = 0
             
+        elif canvas.itemcget(box[k], "fill") == "red":
+            box_new[k] = 1
+            
+        elif canvas.itemcget(box[k], "fill") == "green":
+            box_new[k] = 2
+            
+        else:
+            box_new[k] = 3
+            
+    box_matrix = np.reshape(box_new, (4,4))
+    np.savetxt('game.txt', box_matrix, fmt='%1d')
 # This class is just for the purpose of entry box and demostrating
 # that boxes can be deleted and the board can be reset.
 class Data():
@@ -97,25 +136,25 @@ def GUI_Main():
     secondary_frame.grid(row=0, column=1, sticky=N)
 
     # Text box to give feedback in the GUI
-    text_box = Text(secondary_frame, width=30, height=5, background='green')
+    text_box = Text(secondary_frame, width=50, height=5, background='green')
     text_box.grid(row=0, column=0)
     
 #     if robot_working == True:
 #         canvas.itemconfigure(text_box, background="red")
 
     # Label for the Entry Box
-    label = ttk.Label(secondary_frame, text='Enter Box to delete: ')
-    label.grid(row=2, column=0, sticky=W)
-
-    label_text = ttk.Label(secondary_frame, text='The Entry must be a number from 0-15')
-    label_text.grid(row=1, column=0, sticky=W, padx=10, pady=10)
+#     label = ttk.Label(secondary_frame, text='Enter Box to delete: ')
+#     label.grid(row=2, column=0, sticky=W)
+# 
+#     label_text = ttk.Label(secondary_frame, text='The Entry must be a number from 0-15')
+#     label_text.grid(row=1, column=0, sticky=W, padx=10, pady=10)
 
     # The entry box to decided which box to get rid of
-    box_entry = ttk.Entry(secondary_frame, width=20)
-    box_entry.grid(row=2, column=0, sticky=E)
-
-    data.box = Tkinter.StringVar()
-    box_entry['textvariable'] = data.box
+#     box_entry = ttk.Entry(secondary_frame, width=20)
+#     box_entry.grid(row=2, column=0, sticky=E)
+# 
+#     data.box = Tkinter.StringVar()
+#     box_entry['textvariable'] = data.box
 
     # The canvas for the board and grid of boxes
     canvas = Canvas(main_frame, width=600, height=600)
@@ -125,40 +164,41 @@ def GUI_Main():
     # deletes the box number that you typed in the entry box.
     # Start begins the game with a clean board. Reset resets the
     # board back to the starting state to begin again.
-    delete_button = ttk.Button(secondary_frame,
-                                     text='Delete Box')
-    delete_button.grid(row=3, column=0, sticky=W)
-    delete_button['command'] = lambda: box_removal(box, data, canvas)
+#     delete_button = ttk.Button(secondary_frame,
+#                                      text='Delete Box')
+#     delete_button.grid(row=3, column=0, sticky=W)
+#     delete_button['command'] = lambda: box_removal(box, data, canvas)
     
     NLP_Start_Button = ttk.Button(secondary_frame,
                                      text='Start NLP')
-    NLP_Start_Button.grid(row=3, column=0, sticky=E)
-    #     delete_button['command'] = lambda: box_removal(box, data, canvas)
+    NLP_Start_Button.grid(row=3, column=0, sticky=W,pady=5)
+    NLP_Start_Button['command'] = lambda: os.system('streaming_windows.py')
     
-    NLP_Stop_Button = ttk.Button(secondary_frame,
-                                     text='Stop NLP')
-    NLP_Stop_Button.grid(row=4, column=0, sticky=E)
-#     delete_button['command'] = lambda: box_removal(box, data, canvas)
+#     NLP_Stop_Button = ttk.Button(secondary_frame,
+#                                      text='Stop NLP')
+#     NLP_Stop_Button.grid(row=4, column=0, sticky=E)
+# #     delete_button['command'] = lambda: box_removal(box, data, canvas)
 
 
     reset_button = ttk.Button(secondary_frame,
                                      text='Reset Board')
-    reset_button.grid(row=4, column=0, sticky=W)
+    reset_button.grid(row=4, column=0, sticky=W,pady=5)
     reset_button['command'] = lambda: restart(canvas, box)
 
     start_button = ttk.Button(secondary_frame,
                                      text='Start Board')
-    start_button.grid(row=5, column=0, sticky=W)
+    start_button.grid(row=5, column=0, sticky=W,pady=5)
     start_button['command'] = lambda: start(canvas)
 
     # Calls the function to create the grid on the canvas
     grid(canvas)
-
-    # What is put into the text box
-    text_box.insert(1.0, 'Box Number Selected: ' + '\n' + \
-                    'Robot Status: ')
     
     NLP_Flag = NLP_Main()
+    
+    # What is put into the text box
+    text_box.insert(1.0, 'Box Number Selected: ' + str(NLP_Flag) + '\n' + \
+                    'Robot Status: ')
+    
     root.mainloop()
     
 def NLP_Main():
@@ -169,7 +209,7 @@ def NLP_Main():
     # while stopStatement == false:
     NLPMatrix = getMatrixFromFile(NLPTextFileName)
     bool = checkMatrix(NLPMatrix)
-    print "here"
+    print ("here")
     if bool == False:
         return str("Didn't catch that.")
     probabilityMatrix, maxNumberIndex = multiplyMatrices(NLPMatrix, NLPMatrix)
