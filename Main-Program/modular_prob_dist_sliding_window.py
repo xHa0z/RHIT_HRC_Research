@@ -34,7 +34,7 @@ count = 0
 # Opens the File to write and clear the data out of the text file(Gish)
 with open(filename_XY, 'w') as f:
     f.write("\n")
-
+ 
 with open(filename_XZ, 'w') as f:
     f.write("\n")
 
@@ -158,12 +158,6 @@ class SampleListener(Leap.Listener):
 #                     xpar = np.delete(xpar, 0)
 #                     zpar = np.delete(zpar, 0)
 
-
-
-
-
-
-
         else:
             count = count + 1
             if count == 30:
@@ -198,7 +192,7 @@ class calculations(object):
 
         avg_xpar_sum = int(xpar.averager_function())
         avg_ypar_sum = int(ypar.averager_function())
-        print(avg_xpar_sum, avg_ypar_sum)
+#         print(avg_xpar_sum, avg_ypar_sum)
         # else:
         #    print('Could not detect a location')
     def compute_prob(self, xo=0, yo=0, sd=200):
@@ -235,11 +229,7 @@ def main():
         i = i-1
         calculations().average_center()
         prob = calculations().compute_prob(xo=avg_xpar_sum, yo=avg_ypar_sum - 200, sd=100) 
-#         ff = int(round(prob))
-#         ff = int(prob)
-        #print
-        #print'sum of prob = %f' % prob.sum()
-    print (prob)
+
     np.savetxt('Leap_Matrix.txt', prob, fmt='%1d')
     
     controller.remove_listener(listener)

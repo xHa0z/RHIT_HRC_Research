@@ -46,6 +46,7 @@ from MainFunctions import getMatrixFromFile, \
                           multiplyMatrices, \
                           checkMatrix, \
                           resetTextFile
+import MainFunctions
 
 import modular_prob_dist_sliding_window as lpp
 
@@ -53,6 +54,13 @@ import modular_prob_dist_sliding_window as lpp
 # Array to hold all of the boxes in
 box = []
 box_new = [0]*16
+
+# Test file passes information between Cyton and Main program
+with open('test.txt', 'w') as f:
+    f.write('')
+
+with open('NLP_Speech.txt', 'w') as f:
+    f.write('Start')
 
 '''
 Begins the game and board. Also adds number to the boxes.
@@ -94,11 +102,9 @@ def start(canvas):
             
     box_matrix = np.reshape(box_new, (4,4))
     np.savetxt('game.txt', box_matrix, fmt='%1d')
-# This class is just for the purpose of entry box and demostrating
-# that boxes can be deleted and the board can be reset.
-class Data():
-    def __init__(self):
-        self.box = None
+    # Calls the function to create the grid on the canvas
+    grid(canvas)
+    
 
 
 # This function is used to create a grid system on the canvas
@@ -119,23 +125,39 @@ def restart(canvas, box):
     del box[:]
     start(canvas)
 
-# Removes the selected box that is currently being pick from
-# a text box
+# Removes the selected box that is currently being pick from a text box
 def box_removal(box, data, canvas):
     number = int(data.box.get())
 
     canvas.delete(box[number])
 
-def Leap_Motion(text_box):
-    
+def Leap_Motion(text_box, root):
     text_box.configure(background='red')
-    Leap_Matrix = os.system('modular_prob_dist_sliding_window.py')
+    text_box.update_idletasks()
+    os.system('modular_prob_dist_sliding_window.py')
     text_box.configure(background='green')
+    text_box.update_idletasks()
     
-    return Leap_Matrix
+def NLP(text_box, root):
+    text_box.configure(background='red')
+    text_box.update_idletasks()
+    os.system('streaming_windows.py')
+    text_box.configure(background='green')
+    text_box.update_idletasks()
+    
+def Matrix(text_box, root):
+    text_box.configure(background='red')
+    text_box.update_idletasks()
+    Matrix_Flag = NLP_Main()
+    text_box.configure(background='green')
+#     text_box.insert(1.0, 'Box Number Selected: ' + str(box_number) + '\n' + \
+#                     'Robot Status: ' + '\n' +\
+#                     'NLP Speech: ' + str(NLP_Speech))
+    text_box.update_idletasks()
+    
+    return Matrix_Flag
     
 def GUI_Main():
-    data = Data()
 
     # Tinker is being defined and the frames are being set up
     root = Tkinter.Tk()
@@ -148,81 +170,70 @@ def GUI_Main():
     text_box = Text(secondary_frame, width=50, height=5, background='green')
     text_box.grid(row=0, column=0)
     
-    
-#     if robot_working == True:
-#         canvas.itemconfigure(text_box, background="red")
-
-    # Label for the Entry Box
-#     label = ttk.Label(secondary_frame, text='Enter Box to delete: ')
-#     label.grid(row=2, column=0, sticky=W)
-# 
-#     label_text = ttk.Label(secondary_frame, text='The Entry must be a number from 0-15')
-#     label_text.grid(row=1, column=0, sticky=W, padx=10, pady=10)
-
-    # The entry box to decided which box to get rid of
-#     box_entry = ttk.Entry(secondary_frame, width=20)
-#     box_entry.grid(row=2, column=0, sticky=E)
-# 
-#     data.box = Tkinter.StringVar()
-#     box_entry['textvariable'] = data.box
 
     # The canvas for the board and grid of boxes
     canvas = Canvas(main_frame, width=600, height=600)
     canvas.grid()
     
-
+    # Starts up the the game board right away.
+    start(canvas)
+    
     # The buttons for start, delete, and reset. The delete button
     # deletes the box number that you typed in the entry box.
     # Start begins the game with a clean board. Reset resets the
     # board back to the starting state to begin again.
-#     delete_button = ttk.Button(secondary_frame,
-#                                      text='Delete Box')
-#     delete_button.grid(row=3, column=0, sticky=W)
-#     delete_button['command'] = lambda: box_removal(box, data, canvas)
     
     NLP_Start_Button = ttk.Button(secondary_frame,
                                      text='Start NLP')
     NLP_Start_Button.grid(row=4, column=0, sticky=W,pady=5)
-    NLP_Start_Button['command'] = lambda: os.system('streaming_windows.py')
+    NLP_Start_Button['command'] = lambda: NLP(text_box, root)
     
     Leap_Motion_Button = ttk.Button(secondary_frame,
                                      text='Start Leap Motion')
     Leap_Motion_Button.grid(row=5, column=0, sticky=W,pady=5)
-    Leap_Motion_Button['command'] = lambda: Leap_Motion(text_box)
+    Leap_Motion_Button['command'] = lambda: Leap_Motion(text_box, root)
     
     Move_Button = ttk.Button(secondary_frame,
                                      text='Move')
     Move_Button.grid(row=6, column=0, sticky=W,pady=5)
-    Move_Button['command'] = lambda: NLP_Main()
-
-    
-#     NLP_Stop_Button = ttk.Button(secondary_frame,
-#                                      text='Stop NLP')
-#     NLP_Stop_Button.grid(row=4, column=0, sticky=E)
-# #     delete_button['command'] = lambda: box_removal(box, data, canvas)
-
+    Move_Button['command'] = lambda: Matrix(text_box, root) 
 
     reset_button = ttk.Button(secondary_frame,
                                      text='Reset Board')
     reset_button.grid(row=7, column=0, sticky=W,pady=5)
     reset_button['command'] = lambda: restart(canvas, box)
-
-    start_button = ttk.Button(secondary_frame,
-                                     text='Start Board')
-    start_button.grid(row=3, column=0, sticky=W,pady=5)
-    start_button['command'] = lambda: start(canvas)
-
-    # Calls the function to create the grid on the canvas
-    grid(canvas)
-
-    with open('test.txt', 'r') as f:
-        box_number = f.readline()
-        
-    # What is put into the text box
-    text_box.insert(1.0, 'Box Number Selected: ' + str(box_number) + '\n' + \
-                    'Robot Status: ')
     
 
+    with open('test.txt', 'r') as f:
+        if f.readline == 'done':
+            box_number = f.readline()
+            Robot_Status = f.readline()
+        elif f.readline == '':
+            Robot_Status = ''
+            box_number = 'No Box Selected'
+        else:
+            Robot_Status = 'Standby'
+            box_number = f.readline()
+            if box_number == '':
+                pass
+            else:
+                canvas.delete(box[int(box_number)])
+          
+    # This opens what was picked up by the NLP Speech and prints out what was said or "Didn't Catch That"
+    # if the NLP didn't pick up the key words  
+    with open('NLP_Speech.txt', 'r') as f:
+        if MainFunctions.checkMatrix(getMatrixFromFile('out_file')) == False:
+            NLP_Speech = "Didn't catch that."
+        else:
+            NLP_Speech = f.readline()
+    text_box.update_idletasks()  
+    
+    # What is put into the text box
+    text_box.insert(1.0, 'Box Number Selected: ' + str(box_number) + '\n' + \
+                    'Robot Status: ' "+ str(Robot_Status) "+ '\n' +\
+                    'NLP Speech: ' + str(NLP_Speech))
+    
+    
     root.mainloop()
     
 def NLP_Main():
@@ -286,7 +297,11 @@ def NLP_Main():
     elif maxNumberIndex == [3,3]:
         with open('test.txt', 'w') as f:
             f.write(str(15))
-    # resetTextFile(NLPTextFileName, NLPMatrixInit)
+            
+    with open('test.txt', 'r') as f:
+            print(f.read())
+            
+   # resetTextFile(NLPTextFileName, NLPMatrixInit)
 
 
 def main():

@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Sample that streams audio to the Google Cloud Speech API via GRPC."""
+
 
 from __future__ import division
 from __future__ import print_function
@@ -27,6 +27,8 @@ import datetime
 import sys
 import signal
 import datetime
+from shutil import copyfile
+
 
 
 import numpy as np
@@ -196,6 +198,11 @@ def listen_print_loop(recognize_stream):
     if os.path.isfile('out_file.txt'):
         os.remove('out_file.txt')
         
+    # check the message display txt file
+    if os.path.isfile('NLP_Speech.txt'):
+        os.remove('NLP_Speech.txt')
+        
+        
     for resp in recognize_stream:
 
 
@@ -210,12 +217,18 @@ def listen_print_loop(recognize_stream):
                 os.makedirs(out_path)
             # save each captured voice command
             filename = out_path+'log_' + str(i) + '.txt'
+#             display_msg = 'NLP_Speech.txt'
             # print(result.alternatives[0].transcript)
             log = open(filename, 'w')
+#             msg = open(display_msg,'w')
             log.write(result.alternatives[0].transcript)
+#             msg.write(result.alternatives[0].transcript)
             log.close()
+#             msg.close()
             i += 1
-
+        
+        
+        
         # extract desired color locations
         if any(re.search(r'\b(pick)\b', alt.transcript, re.I)
                for result in resp.results
@@ -251,7 +264,7 @@ def listen_print_loop(recognize_stream):
             np.savetxt('out_file.txt', temp_game, fmt='%1d')
             
 
-
+        
             
 
 
@@ -282,7 +295,16 @@ def listen_print_loop(recognize_stream):
             if np.array_equal(out_check, current_game) or np.array_equal(out_check, multi_commands):
 
                 np.savetxt('out_file.txt', err_game, fmt='%1d')
+            
+            
+            src = out_path+'log_' + str(0) + '.txt'  
+            print (src)
+            dst = cwd+'/NLP_Speech.txt'
+            copyfile(src, dst)
+            
             os.system(command)
+            
+            
 
 
 def main():
