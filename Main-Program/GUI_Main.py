@@ -125,7 +125,14 @@ def box_removal(box, data, canvas):
     number = int(data.box.get())
 
     canvas.delete(box[number])
+
+def Leap_Motion(text_box):
     
+    text_box.configure(background='red')
+    Leap_Matrix = os.system('modular_prob_dist_sliding_window.py')
+    text_box.configure(background='green')
+    
+    return Leap_Matrix
     
 def GUI_Main():
     data = Data()
@@ -140,6 +147,7 @@ def GUI_Main():
     # Text box to give feedback in the GUI
     text_box = Text(secondary_frame, width=50, height=5, background='green')
     text_box.grid(row=0, column=0)
+    
     
 #     if robot_working == True:
 #         canvas.itemconfigure(text_box, background="red")
@@ -161,6 +169,7 @@ def GUI_Main():
     # The canvas for the board and grid of boxes
     canvas = Canvas(main_frame, width=600, height=600)
     canvas.grid()
+    
 
     # The buttons for start, delete, and reset. The delete button
     # deletes the box number that you typed in the entry box.
@@ -179,7 +188,12 @@ def GUI_Main():
     Leap_Motion_Button = ttk.Button(secondary_frame,
                                      text='Start Leap Motion')
     Leap_Motion_Button.grid(row=5, column=0, sticky=W,pady=5)
-    Leap_Motion_Button['command'] = lambda: os.system('modular_prob_dist_sliding_window.py')
+    Leap_Motion_Button['command'] = lambda: Leap_Motion(text_box)
+    
+    Move_Button = ttk.Button(secondary_frame,
+                                     text='Move')
+    Move_Button.grid(row=6, column=0, sticky=W,pady=5)
+    Move_Button['command'] = lambda: NLP_Main()
 
     
 #     NLP_Stop_Button = ttk.Button(secondary_frame,
@@ -190,7 +204,7 @@ def GUI_Main():
 
     reset_button = ttk.Button(secondary_frame,
                                      text='Reset Board')
-    reset_button.grid(row=6, column=0, sticky=W,pady=5)
+    reset_button.grid(row=7, column=0, sticky=W,pady=5)
     reset_button['command'] = lambda: restart(canvas, box)
 
     start_button = ttk.Button(secondary_frame,
@@ -200,28 +214,78 @@ def GUI_Main():
 
     # Calls the function to create the grid on the canvas
     grid(canvas)
-    
-    NLP_Flag = NLP_Main()
 
-    
+    with open('test.txt', 'r') as f:
+        box_number = f.readline()
+        
     # What is put into the text box
-    text_box.insert(1.0, 'Box Number Selected: ' + str(NLP_Flag) + '\n' + \
+    text_box.insert(1.0, 'Box Number Selected: ' + str(box_number) + '\n' + \
                     'Robot Status: ')
     
+
     root.mainloop()
     
 def NLP_Main():
     # stopStatement = false
-    NLPTextFileName = "NLPTextFile"
+    NLPTextFileName = "out_file"
     NLPMatrixInit = "0,0,0,0\n0,0,0,0\n0,0,0,0\n0,0,0,0"
     
     # while stopStatement == false:
     NLPMatrix = getMatrixFromFile(NLPTextFileName)
+    Leap_Matrix = getMatrixFromFile('Leap_Matrix')
+    
     bool = checkMatrix(NLPMatrix)
-    print ("here")
     if bool == False:
         return str("Didn't catch that.")
-    probabilityMatrix, maxNumberIndex = multiplyMatrices(NLPMatrix, NLPMatrix)
+    probabilityMatrix, maxNumberIndex = multiplyMatrices(Leap_Matrix, Leap_Matrix)
+    if maxNumberIndex == [0,0]:
+        with open('test.txt', 'w') as f:
+            f.write(str(0))
+    elif maxNumberIndex == [0,1]:
+        with open('test.txt', 'w') as f:
+            f.write(str(1))
+    elif maxNumberIndex == [0,2]:
+        with open('test.txt', 'w') as f:
+            f.write(str(2))
+    elif maxNumberIndex == [0,3]:
+        with open('test.txt', 'w') as f:
+            f.write(str(3))
+    elif maxNumberIndex == [1,0]:
+        with open('test.txt', 'w') as f:
+            f.write(str(4))
+    elif maxNumberIndex == [1,1]:
+        with open('test.txt', 'w') as f:
+            f.write(str(5))
+    elif maxNumberIndex == [1,2]:
+        with open('test.txt', 'w') as f:
+            f.write(str(6))
+    elif maxNumberIndex == [1,3]:
+        with open('test.txt', 'w') as f:
+            f.write(str(7))
+    elif maxNumberIndex == [2,0]:
+        with open('test.txt', 'w') as f:
+            f.write(str(8))
+    elif maxNumberIndex == [2,1]:
+        with open('test.txt', 'w') as f:
+            f.write(str(9))
+    elif maxNumberIndex == [2,2]:
+        with open('test.txt', 'w') as f:
+            f.write(str(10))
+    elif maxNumberIndex == [2,3]:
+        with open('test.txt', 'w') as f:
+            f.write(str(11))
+    elif maxNumberIndex == [3,0]:
+        with open('test.txt', 'w') as f:
+            f.write(str(12))
+    elif maxNumberIndex == [3,1]:
+        with open('test.txt', 'w') as f:
+            f.write(str(13))
+    elif maxNumberIndex == [3,2]:
+        with open('test.txt', 'w') as f:
+            f.write(str(14))
+    elif maxNumberIndex == [3,3]:
+        with open('test.txt', 'w') as f:
+            f.write(str(15))
     # resetTextFile(NLPTextFileName, NLPMatrixInit)
 
 

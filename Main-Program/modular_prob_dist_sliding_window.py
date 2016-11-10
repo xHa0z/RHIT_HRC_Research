@@ -196,8 +196,8 @@ class calculations(object):
 
 
 
-        avg_xpar_sum = xpar.averager_function()
-        avg_ypar_sum = ypar.averager_function()
+        avg_xpar_sum = int(xpar.averager_function())
+        avg_ypar_sum = int(ypar.averager_function())
         print(avg_xpar_sum, avg_ypar_sum)
         # else:
         #    print('Could not detect a location')
@@ -212,13 +212,13 @@ class calculations(object):
         xx, yy = np.meshgrid(x, y)
         xx_pdf = truncnorm.pdf(xx, sd_left, sd_right, loc=xo, scale=sd)
         yy_pdf = truncnorm.pdf(yy, sd_bottom, sd_top, loc=yo, scale=sd)
-        pdf = xx_pdf * yy_pdf
+        pdf = xx_pdf * yy_pdf*1000
         prob = np.zeros([4, 4])
         for i in np.arange(4):
             i0 = 100 * i
             for j in np.arange(4):
                 j0 = 100 * j
-                prob[i, j] = pdf[i0:i0 + 100, j0:j0 + 100].sum()
+                prob[i,j] = int(round(pdf[i0:i0 + 100, j0:j0 + 100].sum()))
         return prob
 
 
@@ -234,11 +234,14 @@ def main():
     while (i > 0):
         i = i-1
         calculations().average_center()
-        prob = calculations().compute_prob(xo=avg_xpar_sum, yo=avg_ypar_sum - 200, sd=100)
-        print np.round(prob, 6)
-        print
-        print'sum of prob = %f' % prob.sum()
-
+        prob = calculations().compute_prob(xo=avg_xpar_sum, yo=avg_ypar_sum - 200, sd=100) 
+#         ff = int(round(prob))
+#         ff = int(prob)
+        #print
+        #print'sum of prob = %f' % prob.sum()
+    print (prob)
+    np.savetxt('Leap_Matrix.txt', prob, fmt='%1d')
+    
     controller.remove_listener(listener)
 
 
