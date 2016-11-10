@@ -50,7 +50,6 @@ import MainFunctions
 
 import modular_prob_dist_sliding_window as lpp
 
-                          
 # Array to hold all of the boxes in
 box = []
 box_new = [0]*16
@@ -62,6 +61,8 @@ with open('test.txt', 'w') as f:
 with open('NLP_Speech.txt', 'w') as f:
     f.write('Start')
 
+with open('out_file.txt', 'w') as f:
+    f.write(str(0))
 '''
 Begins the game and board. Also adds number to the boxes.
 Please note that the boxes are hard coded to be a set pattern
@@ -150,13 +151,46 @@ def Matrix(text_box, root):
     text_box.update_idletasks()
     Matrix_Flag = NLP_Main()
     text_box.configure(background='green')
-#     text_box.insert(1.0, 'Box Number Selected: ' + str(box_number) + '\n' + \
-#                     'Robot Status: ' + '\n' +\
-#                     'NLP Speech: ' + str(NLP_Speech))
     text_box.update_idletasks()
     
     return Matrix_Flag
+
+def root_updater(root, text_box, canvas):
+    text_box.delete('1.0', END)
+    with open('test.txt', 'r') as f:
+        if f.readline == 'done':
+            box_number = f.readline()
+            Robot_Status = f.readline()
+        elif f.readline == '':
+            Robot_Status = ''
+            box_number = 'No Box Selected'
+        else:
+            Robot_Status = 'Standby'
+            box_number = f.readline()
+            if box_number == '':
+                pass
+            else:
+                canvas.delete(box[int(box_number)])
+                
+    # This opens what was picked up by the NLP Speech and prints out what was said or "Didn't Catch That"
+    # if the NLP didn't pick up the key words  
+    with open('NLP_Speech.txt', 'r') as f:
+        if MainFunctions.checkMatrix(getMatrixFromFile('out_file')) == False:
+            NLP_Speech = "Didn't catch that."
+        else:
+            NLP_Speech = f.readline() 
     
+    # What is put into the text box
+    text_box.insert(1.0, 'Box Number Selected: ' + str(box_number) + '\n' + \
+                    'Robot Status: ' + str(Robot_Status) + '\n' +\
+                    'NLP Speech: ' + str(NLP_Speech))
+    
+    text_box.update_idletasks()
+    canvas.update_idletasks()
+    root.update_idletasks()
+    
+    
+       
 def GUI_Main():
 
     # Tinker is being defined and the frames are being set up
@@ -203,37 +237,15 @@ def GUI_Main():
     reset_button.grid(row=7, column=0, sticky=W,pady=5)
     reset_button['command'] = lambda: restart(canvas, box)
     
-
-    with open('test.txt', 'r') as f:
-        if f.readline == 'done':
-            box_number = f.readline()
-            Robot_Status = f.readline()
-        elif f.readline == '':
-            Robot_Status = ''
-            box_number = 'No Box Selected'
-        else:
-            Robot_Status = 'Standby'
-            box_number = f.readline()
-            if box_number == '':
-                pass
-            else:
-                canvas.delete(box[int(box_number)])
-          
-    # This opens what was picked up by the NLP Speech and prints out what was said or "Didn't Catch That"
-    # if the NLP didn't pick up the key words  
-    with open('NLP_Speech.txt', 'r') as f:
-        if MainFunctions.checkMatrix(getMatrixFromFile('out_file')) == False:
-            NLP_Speech = "Didn't catch that."
-        else:
-            NLP_Speech = f.readline()
-    text_box.update_idletasks()  
-    
-    # What is put into the text box
-    text_box.insert(1.0, 'Box Number Selected: ' + str(box_number) + '\n' + \
-                    'Robot Status: ' "+ str(Robot_Status) "+ '\n' +\
-                    'NLP Speech: ' + str(NLP_Speech))
+    refresh_button = ttk.Button(secondary_frame,
+                                     text='Refresh Button')
+    refresh_button.grid(row=4, column=1, sticky=W,pady=5)
+    refresh_button['command'] = lambda: root_updater(root, text_box, canvas)
     
     
+    root_updater(root, text_box, canvas)
+#     root.after(2000, root_updater(root, text_box, canvas))
+#     root.after(500, canvas)
     root.mainloop()
     
 def NLP_Main():
