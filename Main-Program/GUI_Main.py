@@ -34,6 +34,7 @@ import Tkinter
 from Tkinter import *
 import ttk
 import numpy as np
+import Leap
 
 import contextlib
 import re
@@ -64,10 +65,14 @@ from MainFunctions import getMatrixFromFile, \
 import MainFunctions
 
 import modular_prob_dist_sliding_window as lpp
+from LeapPython import Controller_is_connected_get
 
 # Array to hold all of the boxes in
 box = []
 box_new = [0]*16
+
+# Counts how many boxes are remove then after 3 it ends and restarts the game,
+boxes_removed = 0
 
 # Test file passes information between Cyton and Main program
 with open('test.txt', 'w') as f:
@@ -80,6 +85,7 @@ with open('NLP_Speech.txt', 'w') as f:
 # Test file passes information between Cyton and Main program
 with open('out_file.txt', 'w') as f:
     f.write(str(0))
+    
 '''
 Begins the game and board. Also adds number to the boxes.
 Please note that the boxes are hard coded to be a set pattern
@@ -123,7 +129,7 @@ def start(canvas):
             
         else:
             box_new[k] = 3
-            
+    
     # This reshapes the two d array of boxes to matrix and saves it to the 
     # game text file.
     box_matrix = np.reshape(box_new, (4,4))
@@ -152,6 +158,12 @@ def restart(canvas, box):
     del box[:]
     start(canvas)
 
+# After winning the game the restart button calls this function to start the game over
+def Restart_Game(root_win, root, win_frame,text_box, canvas, box):
+    restart(canvas, box)
+    root_updater(root, text_box, canvas)
+    root_win.destroy()
+    
 # This function is to change the text box color to red for when the Leap Motion Starts
 def Leap_Motion(text_box, root):
     text_box.configure(background='red')
@@ -183,6 +195,7 @@ def Matrix(text_box, root):
 # This is the temporary fix to update the gui after clicking the buttons would like to have it 
 # update automatically which requires multithreading
 def root_updater(root, text_box, canvas):
+    global boxes_removed
     text_box.delete('1.0', END)
     # This opens up the text file to determine the box number to put
     # in the text file and also the robot status
@@ -200,6 +213,7 @@ def root_updater(root, text_box, canvas):
                 pass
             else:
                 canvas.delete(box[int(box_number)])
+                boxes_removed = boxes_removed + 1
                 
     # This opens what was picked up by the NLP Speech and prints out what was said or "Didn't Catch That"
     # if the NLP didn't pick up the key words  
@@ -210,10 +224,35 @@ def root_updater(root, text_box, canvas):
         else:
             NLP_Speech = f.readline() 
     
+    controller = Leap.Controller()
+
+    controller_active = controller.is_connected
+    
+    if controller_active == False:
+        controller_active = 'Disconnected'
+        
+    else:
+        controller_active = 'Connected'
+    
+    if boxes_removed == 3:
+        boxes_removed = 0
+        root_win = Tkinter.Toplevel()
+        win_frame = ttk.Frame(root_win, padding = (25, 25))
+        win_frame.grid()
+        # Label for the win frame
+        win_label = Label(win_frame, text='Congradulations on getting three blocks! You win!' 
+                        ' Now click the restart button to be a new game!')
+        win_label.grid(row = 0, column = 0)
+        restart_button = ttk.Button(win_frame,
+                                    text='Restart Game')
+        restart_button.grid(row=7, column=0, sticky=W,pady=5)
+        restart_button['command'] = lambda: Restart_Game(root_win, root, win_frame,text_box, canvas, box)
+        
     # What is put into the text box
     text_box.insert(1.0, 'Box Number Selected: ' + str(box_number) + '\n' + \
                     'Robot Status: ' + str(Robot_Status) + '\n' +\
-                    'NLP Speech: ' + str(NLP_Speech))
+                    'NLP Speech: ' + str(NLP_Speech) + '\n' + 'Leap Motion: ' \
+                    + str(controller_active))
     
     # update the GUI
     text_box.update_idletasks()
@@ -223,11 +262,11 @@ def root_updater(root, text_box, canvas):
     
        
 def GUI_Main():
-
     # Tinker is being defined and the frames are being set up
     # The Main Frame holds the Canvas and the Secondary holds the 
     # text box and the buttons
     root = Tkinter.Tk()
+
     main_frame = ttk.Frame(root, padding=(25, 25))
     secondary_frame = ttk.Frame(root, padding=(25, 25))
     main_frame.grid(row=0, column=0)
@@ -244,6 +283,7 @@ def GUI_Main():
     
     # Starts up the the game board right away.
     start(canvas)
+    
     
     # The buttons for start, delete, and reset. The delete button
     # deletes the box number that you typed in the entry box.
