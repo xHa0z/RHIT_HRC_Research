@@ -58,9 +58,11 @@ box_new = [0]*16
 with open('test.txt', 'w') as f:
     f.write('')
 
+# NLP_Speech file passes what was picked up by the NLP
 with open('NLP_Speech.txt', 'w') as f:
     f.write('Start')
-
+    
+# Test file passes information between Cyton and Main program
 with open('out_file.txt', 'w') as f:
     f.write(str(0))
 '''
@@ -70,6 +72,7 @@ This function doesn't currently gernerate a random sequence of
 boxes and colors. The pattern can be changed at the end function
 '''
 def start(canvas):
+    # They fill up the board by default and the color is white.
     for k in range(4):
         for j in range(4):
             num = canvas.create_rectangle(25 + 150 * j, 25 + 150 * k, 125 + j * 150,
@@ -101,8 +104,11 @@ def start(canvas):
         else:
             box_new[k] = 3
             
+    # This reshapes the two d array of boxes to matrix and saves it to the 
+    # game text file.
     box_matrix = np.reshape(box_new, (4,4))
     np.savetxt('game.txt', box_matrix, fmt='%1d')
+    
     # Calls the function to create the grid on the canvas
     grid(canvas)
     
@@ -113,7 +119,7 @@ def grid(canvas):
     for k in range(4):
         # Row of Lines
         canvas.create_line(0, k * 150, 600, k * 150, width=3)
-        canvas.create_line(0, k * 150, 600, k * 150, width=3)
+        
         # Column of lines
         canvas.create_line(k * 150, 0, k * 150, 600, width=3)
 
@@ -126,12 +132,7 @@ def restart(canvas, box):
     del box[:]
     start(canvas)
 
-# Removes the selected box that is currently being pick from a text box
-def box_removal(box, data, canvas):
-    number = int(data.box.get())
-
-    canvas.delete(box[number])
-
+# This function is to change the text box color to red for when the Leap Motion Starts
 def Leap_Motion(text_box, root):
     text_box.configure(background='red')
     text_box.update_idletasks()
@@ -139,6 +140,8 @@ def Leap_Motion(text_box, root):
     text_box.configure(background='green')
     text_box.update_idletasks()
     
+# This function is to change the text box color to red when the NLP is running then green when it is done
+# Please note there is about a second and a half lag when starting the NLP
 def NLP(text_box, root):
     text_box.configure(background='red')
     text_box.update_idletasks()
@@ -146,6 +149,7 @@ def NLP(text_box, root):
     text_box.configure(background='green')
     text_box.update_idletasks()
     
+# 
 def Matrix(text_box, root):
     text_box.configure(background='red')
     text_box.update_idletasks()
