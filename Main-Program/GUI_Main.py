@@ -212,6 +212,8 @@ def root_updater(root, text_box, canvas):
             if box_number == '':
                 pass
             else:
+                # Deletes the box from the array which removes it from the screen after pressing update
+                # then then it adds one to the amount of boxes removed.
                 canvas.delete(box[int(box_number)])
                 boxes_removed = boxes_removed + 1
                 
@@ -224,8 +226,9 @@ def root_updater(root, text_box, canvas):
         else:
             NLP_Speech = f.readline() 
     
+    # This checks to see if the Leap is connected or not then writes it to the text
+    # box inside the GUI
     controller = Leap.Controller()
-
     controller_active = controller.is_connected
     
     if controller_active == False:
@@ -234,6 +237,9 @@ def root_updater(root, text_box, canvas):
     else:
         controller_active = 'Connected'
     
+    # Game logic to count how many blocks are picked up and then when it reaches 3
+    # a new window pops up telling the user that they won and need to press the restart
+    # button on the new window.
     if boxes_removed == 3:
         boxes_removed = 0
         root_win = Tkinter.Toplevel()
@@ -266,7 +272,6 @@ def GUI_Main():
     # The Main Frame holds the Canvas and the Secondary holds the 
     # text box and the buttons
     root = Tkinter.Tk()
-
     main_frame = ttk.Frame(root, padding=(25, 25))
     secondary_frame = ttk.Frame(root, padding=(25, 25))
     main_frame.grid(row=0, column=0)
