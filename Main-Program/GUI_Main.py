@@ -6,6 +6,21 @@ Purpose: This point of this is to give a gui/ feedback system
         
 Project: Robotics Arm Research 
 
+Files:
+    game.txt - This is the file to send the game board  state to the NLP
+    Leap_Matrix.txt - The output matrix probablity from the Leap Motion
+    Leap_Motion.txt - Unknown
+    requirements.txt - This is for the Google NLP Server and authentication.
+    test.txt - This file is to send the box number to the robot and for the robot to
+                send back done to the main program.
+    NLP_Speech.txt - This file is what gets picked up by the NLP. 
+    out_file.txt - this is the output matrix from the NLP.
+    
+Color Code:
+    1 = Red Block
+    2 = Green Block
+    3 = Blue Block
+    
 Author: Devon Adair
 Date Created: 10/31/2016
 
@@ -60,7 +75,7 @@ with open('test.txt', 'w') as f:
 
 # NLP_Speech file passes what was picked up by the NLP
 with open('NLP_Speech.txt', 'w') as f:
-    f.write('Start')
+    f.write('')
     
 # Test file passes information between Cyton and Main program
 with open('out_file.txt', 'w') as f:
@@ -90,6 +105,11 @@ def start(canvas):
     canvas.itemconfig(box[9], fill="green")
     
     # Deletes the boxes that were originally there and not the chosen ones
+    # Color Code:
+    #     0 = White Block (Default)
+    #     1 = Red Block
+    #     2 = Green Block
+    #     3 = Blue Block
     for k in range(16):
         if canvas.itemcget(box[k], "fill") == "white":
             canvas.delete(box[k])
@@ -149,7 +169,8 @@ def NLP(text_box, root):
     text_box.configure(background='green')
     text_box.update_idletasks()
     
-# 
+# This is to change the color of the text box to red when the matrixs are being 
+# multiplied then back to green when done 
 def Matrix(text_box, root):
     text_box.configure(background='red')
     text_box.update_idletasks()
@@ -159,8 +180,12 @@ def Matrix(text_box, root):
     
     return Matrix_Flag
 
+# This is the temporary fix to update the gui after clicking the buttons would like to have it 
+# update automatically which requires multithreading
 def root_updater(root, text_box, canvas):
     text_box.delete('1.0', END)
+    # This opens up the text file to determine the box number to put
+    # in the text file and also the robot status
     with open('test.txt', 'r') as f:
         if f.readline == 'done':
             box_number = f.readline()
@@ -179,6 +204,7 @@ def root_updater(root, text_box, canvas):
     # This opens what was picked up by the NLP Speech and prints out what was said or "Didn't Catch That"
     # if the NLP didn't pick up the key words  
     with open('NLP_Speech.txt', 'r') as f:
+        # NLP send back a matrix filled with all -1 to indicated that it didn't understand
         if MainFunctions.checkMatrix(getMatrixFromFile('out_file')) == False:
             NLP_Speech = "Didn't catch that."
         else:
@@ -189,6 +215,7 @@ def root_updater(root, text_box, canvas):
                     'Robot Status: ' + str(Robot_Status) + '\n' +\
                     'NLP Speech: ' + str(NLP_Speech))
     
+    # update the GUI
     text_box.update_idletasks()
     canvas.update_idletasks()
     root.update_idletasks()
@@ -198,6 +225,8 @@ def root_updater(root, text_box, canvas):
 def GUI_Main():
 
     # Tinker is being defined and the frames are being set up
+    # The Main Frame holds the Canvas and the Secondary holds the 
+    # text box and the buttons
     root = Tkinter.Tk()
     main_frame = ttk.Frame(root, padding=(25, 25))
     secondary_frame = ttk.Frame(root, padding=(25, 25))
