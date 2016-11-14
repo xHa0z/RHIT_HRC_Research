@@ -73,6 +73,7 @@ box_new = [0]*16
 
 # Counts how many boxes are remove then after 3 it ends and restarts the game,
 boxes_removed = 0
+read_box_selected = 0
 
 # Test file passes information between Cyton and Main program
 with open('test.txt', 'w') as f:
@@ -80,12 +81,14 @@ with open('test.txt', 'w') as f:
 
 # NLP_Speech file passes what was picked up by the NLP
 with open('NLP_Speech.txt', 'w') as f:
-    f.write('')
+    f.write('Nothing')
     
 # Test file passes information between Cyton and Main program
 with open('out_file.txt', 'w') as f:
     f.write(str(0))
-    
+ 
+with open('Box_Selected.txt', 'w') as f:
+    f.write('')   
 '''
 Begins the game and board. Also adds number to the boxes.
 Please note that the boxes are hard coded to be a set pattern
@@ -119,6 +122,7 @@ def start(canvas):
     for k in range(16):
         if canvas.itemcget(box[k], "fill") == "white":
             canvas.delete(box[k])
+            box[k] = 0
             box_new[k] = 0
             
         elif canvas.itemcget(box[k], "fill") == "red":
@@ -129,6 +133,7 @@ def start(canvas):
             
         else:
             box_new[k] = 3
+    
     
     # This reshapes the two d array of boxes to matrix and saves it to the 
     # game text file.
@@ -165,58 +170,78 @@ def Restart_Game(root_win, root, win_frame,text_box, canvas, box):
     root_win.destroy()
     
 # This function is to change the text box color to red for when the Leap Motion Starts
-def Leap_Motion(text_box, root):
+def Leap_Motion(text_box, canvas, root):
     text_box.configure(background='red')
     text_box.update_idletasks()
     os.system('modular_prob_dist_sliding_window.py')
     text_box.configure(background='green')
     text_box.update_idletasks()
     
+    root_updater(root, text_box, canvas)
+    
 # This function is to change the text box color to red when the NLP is running then green when it is done
 # Please note there is about a second and a half lag when starting the NLP
-def NLP(text_box, root):
+def NLP(text_box,canvas, root):
     text_box.configure(background='red')
     text_box.update_idletasks()
     os.system('streaming_windows.py')
     text_box.configure(background='green')
     text_box.update_idletasks()
     
+    root_updater(root, text_box, canvas)
+    
 # This is to change the color of the text box to red when the matrixs are being 
 # multiplied then back to green when done 
-def Matrix(text_box, root):
+def Matrix(text_box, canvas, root):
     text_box.configure(background='red')
     text_box.update_idletasks()
     Matrix_Flag = NLP_Main()
     text_box.configure(background='green')
     text_box.update_idletasks()
     
+    root_updater(root, text_box, canvas)
     return Matrix_Flag
 
 # This is the temporary fix to update the gui after clicking the buttons would like to have it 
 # update automatically which requires multithreading
 def root_updater(root, text_box, canvas):
-    global boxes_removed
+    global boxes_removed, read_box_selected
     text_box.delete('1.0', END)
+    if os.path.isfile('NLP_Speech.txt') != True:
+         with open('NLP_Speech.txt', 'w') as f:
+             f.write('Nothing')
+             
+             
     # This opens up the text file to determine the box number to put
     # in the text file and also the robot status
     with open('test.txt', 'r') as f:
-        if f.readline == 'done':
+        if f.readline == 'DONE':
             box_number = f.readline()
             Robot_Status = f.readline()
-        elif f.readline == '':
+        else:
             Robot_Status = ''
             box_number = 'No Box Selected'
+            
+    with open('Box_Selected.txt', 'r') as f:
+        text = f.readline()
+        
+        if text != '':
+            # Deletes the box from the array which removes it from the screen after pressing update
+            # then then it adds one to the amount of boxes removed.
+            box_number = int(text)
+            if box[box_number] != 0:
+                canvas.delete(box[box_number])
+                boxes_removed = boxes_removed + 1
+                read_box_selected = 1
         else:
             Robot_Status = 'Standby'
             box_number = f.readline()
-            if box_number == '':
-                pass
-            else:
-                # Deletes the box from the array which removes it from the screen after pressing update
-                # then then it adds one to the amount of boxes removed.
-                canvas.delete(box[int(box_number)])
-                boxes_removed = boxes_removed + 1
-                
+                 
+    if read_box_selected == 1:
+        read_box_selected = 0
+        with open('Box_Selected.txt', 'w') as f:
+            f.write('')
+            
     # This opens what was picked up by the NLP Speech and prints out what was said or "Didn't Catch That"
     # if the NLP didn't pick up the key words  
     with open('NLP_Speech.txt', 'r') as f:
@@ -298,22 +323,22 @@ def GUI_Main():
     NLP_Start_Button = ttk.Button(secondary_frame,
                                      text='Start NLP')
     NLP_Start_Button.grid(row=4, column=0, sticky=W,pady=5)
-    NLP_Start_Button['command'] = lambda: NLP(text_box, root)
+    NLP_Start_Button['command'] = lambda: NLP(text_box,canvas, root)
     
     Leap_Motion_Button = ttk.Button(secondary_frame,
                                      text='Start Leap Motion')
     Leap_Motion_Button.grid(row=5, column=0, sticky=W,pady=5)
-    Leap_Motion_Button['command'] = lambda: Leap_Motion(text_box, root)
+    Leap_Motion_Button['command'] = lambda: Leap_Motion(text_box,canvas, root)
     
     Move_Button = ttk.Button(secondary_frame,
                                      text='Move')
     Move_Button.grid(row=6, column=0, sticky=W,pady=5)
-    Move_Button['command'] = lambda: Matrix(text_box, root) 
+    Move_Button['command'] = lambda: Matrix(text_box,canvas, root) 
 
     reset_button = ttk.Button(secondary_frame,
                                      text='Reset Board')
     reset_button.grid(row=7, column=0, sticky=W,pady=5)
-    reset_button['command'] = lambda: restart(canvas, box)
+    reset_button['command'] = lambda: root_updater(root, text_box, canvas)
     
     refresh_button = ttk.Button(secondary_frame,
                                      text='Refresh Button')
@@ -338,59 +363,50 @@ def NLP_Main():
     bool = checkMatrix(NLPMatrix)
     if bool == False:
         return str("Didn't catch that.")
-    probabilityMatrix, maxNumberIndex = multiplyMatrices(Leap_Matrix, Leap_Matrix)
+    probabilityMatrix, maxNumberIndex = multiplyMatrices(Leap_Matrix, NLPMatrix)
     if maxNumberIndex == [0,0]:
-        with open('test.txt', 'w') as f:
-            f.write(str(0))
+        x = 0
     elif maxNumberIndex == [0,1]:
-        with open('test.txt', 'w') as f:
-            f.write(str(1))
+        x = 1
     elif maxNumberIndex == [0,2]:
-        with open('test.txt', 'w') as f:
-            f.write(str(2))
+        x = 2
     elif maxNumberIndex == [0,3]:
-        with open('test.txt', 'w') as f:
-            f.write(str(3))
+        x = 3
     elif maxNumberIndex == [1,0]:
-        with open('test.txt', 'w') as f:
-            f.write(str(4))
+        x = 4
     elif maxNumberIndex == [1,1]:
-        with open('test.txt', 'w') as f:
-            f.write(str(5))
+        x = 5
     elif maxNumberIndex == [1,2]:
-        with open('test.txt', 'w') as f:
-            f.write(str(6))
+        x = 6
     elif maxNumberIndex == [1,3]:
-        with open('test.txt', 'w') as f:
-            f.write(str(7))
+        x = 7
     elif maxNumberIndex == [2,0]:
-        with open('test.txt', 'w') as f:
-            f.write(str(8))
+        x = 8
     elif maxNumberIndex == [2,1]:
-        with open('test.txt', 'w') as f:
-            f.write(str(9))
+        x = 9
     elif maxNumberIndex == [2,2]:
-        with open('test.txt', 'w') as f:
-            f.write(str(10))
+        x = 10
     elif maxNumberIndex == [2,3]:
-        with open('test.txt', 'w') as f:
-            f.write(str(11))
+        x = 11
     elif maxNumberIndex == [3,0]:
-        with open('test.txt', 'w') as f:
-            f.write(str(12))
+        x = 12
     elif maxNumberIndex == [3,1]:
-        with open('test.txt', 'w') as f:
-            f.write(str(13))
+        x = 13
     elif maxNumberIndex == [3,2]:
-        with open('test.txt', 'w') as f:
-            f.write(str(14))
+        x = 14
     elif maxNumberIndex == [3,3]:
+        x = 15
+            
+#     with open('test.txt', 'r') as f:
+#         print(f.read())
+    if box[x] != 0:
         with open('test.txt', 'w') as f:
-            f.write(str(15))
-            
-    with open('test.txt', 'r') as f:
-            print(f.read())
-            
+            f.write(str(x))
+        with open('Box_Selected.txt', 'w') as f:
+            f.write(str(x)) 
+    else:
+        with open('Box_Selected.txt', 'w') as f:
+            f.write(str(x)) 
    # resetTextFile(NLPTextFileName, NLPMatrixInit)
 
 
