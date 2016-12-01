@@ -231,6 +231,7 @@ def root_updater(root, text_box, canvas):
             box_number = int(text)
             if box[box_number] != 0:
                 canvas.delete(box[box_number])
+                box[box_number] == 0
                 boxes_removed = boxes_removed + 1
                 read_box_selected = 1
         else:
@@ -301,6 +302,8 @@ def GUI_Main():
     secondary_frame = ttk.Frame(root, padding=(25, 25))
     main_frame.grid(row=0, column=0)
     secondary_frame.grid(row=0, column=1, sticky=N)
+    third_frame = ttk.Frame(root, padding=(25, 25))
+    third_frame.grid(row=0, column=1, sticky=W)
 
     # Text box to give feedback in the GUI
     text_box = Text(secondary_frame, width=50, height=5, background='green')
@@ -314,36 +317,45 @@ def GUI_Main():
     # Starts up the the game board right away.
     start(canvas)
     
+    #Labels with numbers to tell user to select which button
+    one_label = ttk.Label(third_frame, text='1.')
+    one_label.grid(row=4, column=0, sticky=W)
+    
+    two_label = ttk.Label(third_frame, text='2.')
+    two_label.grid(row=5, column=0, sticky=W)
+    
+    three_label = ttk.Label(third_frame, text='3.')
+    three_label.grid(row=6, column=0, sticky=W)
     
     # The buttons for start, delete, and reset. The delete button
     # deletes the box number that you typed in the entry box.
     # Start begins the game with a clean board. Reset resets the
     # board back to the starting state to begin again.
     
-    NLP_Start_Button = ttk.Button(secondary_frame,
+    NLP_Start_Button = ttk.Button(third_frame,
                                      text='Start NLP')
-    NLP_Start_Button.grid(row=4, column=0, sticky=W,pady=5)
+    NLP_Start_Button.grid(row=4, column=1, sticky=W,pady=5)
     NLP_Start_Button['command'] = lambda: NLP(text_box,canvas, root)
     
-    Leap_Motion_Button = ttk.Button(secondary_frame,
+    Leap_Motion_Button = ttk.Button(third_frame,
                                      text='Start Leap Motion')
-    Leap_Motion_Button.grid(row=5, column=0, sticky=W,pady=5)
+    Leap_Motion_Button.grid(row=5, column=1, sticky=W,pady=5)
     Leap_Motion_Button['command'] = lambda: Leap_Motion(text_box,canvas, root)
     
-    Move_Button = ttk.Button(secondary_frame,
+    Move_Button = ttk.Button(third_frame,
                                      text='Move')
-    Move_Button.grid(row=6, column=0, sticky=W,pady=5)
+    Move_Button.grid(row=6, column=1, sticky=W,pady=5)
     Move_Button['command'] = lambda: Matrix(text_box,canvas, root) 
 
-    reset_button = ttk.Button(secondary_frame,
-                                     text='Reset Board')
-    reset_button.grid(row=7, column=0, sticky=W,pady=5)
-    reset_button['command'] = lambda: root_updater(root, text_box, canvas)
-    
-    refresh_button = ttk.Button(secondary_frame,
-                                     text='Refresh Button')
-    refresh_button.grid(row=4, column=1, sticky=W,pady=5)
-    refresh_button['command'] = lambda: root_updater(root, text_box, canvas)
+#     reset_button = ttk.Button(secondary_frame,
+#                                      text='Reset Board')
+#     reset_button.grid(row=7, column=0, sticky=W,pady=5)
+#     reset_button['command'] = lambda: root_updater(root, text_box, canvas)
+#     
+#     refresh_button = ttk.Button(secondary_frame,
+#                                      text='Refresh Button')
+#     refresh_button.grid(row=4, column=1, sticky=W,pady=5)
+#     refresh_button['command'] = lambda: root_updater(root, text_box, canvas)
     
     
     root_updater(root, text_box, canvas)
