@@ -90,7 +90,7 @@ class SampleListener(Leap.Listener):
                 #####################################################################################
                 # 1,2,3,4,5,6,7 feet
 
-                mag = (1 / frame.tools[0].direction[2]) * (-424.6118 - frame.tools[0].tip_position[2])
+                mag = (1 / frame.tools[0].direction[2]) * (-1542 - frame.tools[0].tip_position[2])
                 # print mag
 
                 # compute the position in the table top plane using the magnitude

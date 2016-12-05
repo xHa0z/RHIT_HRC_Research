@@ -248,7 +248,7 @@ def root_updater(root, text_box, canvas):
     with open('NLP_Speech.txt', 'r') as f:
         # NLP send back a matrix filled with all -1 to indicated that it didn't understand
         if MainFunctions.checkMatrix(getMatrixFromFile('out_file')) == False:
-            NLP_Speech = "Didn't catch that."
+            NLP_Speech = "Didn't catch that. Please click the NLP button again and try again."
         else:
             NLP_Speech = f.readline() 
     
@@ -272,8 +272,8 @@ def root_updater(root, text_box, canvas):
         win_frame = ttk.Frame(root_win, padding = (25, 25))
         win_frame.grid()
         # Label for the win frame
-        win_label = Label(win_frame, text='Congradulations on getting three blocks! You win!' 
-                        ' Now click the restart button to be a new game!')
+        win_label = Label(win_frame, text='Congratulations on getting three blocks! You win!' 
+                        ' Now click the restart button to begin a new game!')
         win_label.grid(row = 0, column = 0)
         restart_button = ttk.Button(win_frame,
                                     text='Restart Game')
@@ -302,13 +302,28 @@ def GUI_Main():
     secondary_frame = ttk.Frame(root, padding=(25, 25))
     main_frame.grid(row=0, column=0)
     secondary_frame.grid(row=0, column=1, sticky=N)
-    third_frame = ttk.Frame(root, padding=(25, 25))
-    third_frame.grid(row=0, column=1, sticky=W)
-
+#     thrid_frame = ttk.Frame(root)
+#     thrid_frame.place(x=150,y=150)
+    
     # Text box to give feedback in the GUI
-    text_box = Text(secondary_frame, width=50, height=5, background='green')
+    text_box = Text(secondary_frame, width=65, height=5, background='green')
     text_box.grid(row=0, column=0)
     
+    instruction_box = Text(secondary_frame, width=50, height=15, background='white', wrap=WORD)
+    scr = Scrollbar(secondary_frame)
+    scr.config(command=YView)
+    instruction_box.config(yscrollcommand=scr.set)
+    instruction_box.grid(row=4, column=0, pady=10)
+    scr.grid(row=4,column=0, sticky=E)
+    instruction_box.insert(1.0, '1.) Press the Start NLP button to begin talking to the robot.' 
+                                    "Once you are done if it says that it didn't hear you you need to press the button again"
+                                    ' and try talking to the robot agian until it hears you.' + '\n' + '\n'
+                                '2.) Next hit the Leap Motion button and point to the the cubby spot (with the pencil) that you would like'
+                                    "selected. Again if it says that it didn't detected which cubby you need to hit the "
+                                    'button again and point to the cubby spot.' + '\n' + '\n'
+                                '3.) Once the program has heard you and found the box that you want please click the move button'
+                                    ' to see the robot move to the block that you picked and move it.' + '\n' + '\n'
+                                '4.) After you have successfully removed three blocks you win and can restart the game!')
 
     # The canvas for the board and grid of boxes
     canvas = Canvas(main_frame, width=600, height=600)
@@ -318,33 +333,36 @@ def GUI_Main():
     start(canvas)
     
     #Labels with numbers to tell user to select which button
-    one_label = ttk.Label(third_frame, text='1.')
-    one_label.grid(row=4, column=0, sticky=W)
+    one_label = ttk.Label(secondary_frame, text='1.')
+    one_label.place(x=250,y=112)
     
-    two_label = ttk.Label(third_frame, text='2.')
-    two_label.grid(row=5, column=0, sticky=W)
+    two_label = ttk.Label(secondary_frame, text='2.')
+    two_label.place(x=230, y=152)
     
-    three_label = ttk.Label(third_frame, text='3.')
-    three_label.grid(row=6, column=0, sticky=W)
+    three_label = ttk.Label(secondary_frame, text='3.')
+    three_label.place(x=250, y=192)
+    
+    instruction_label = ttk.Label(secondary_frame, text='Instructions: ')
+    instruction_label.place(x=0, y=210)
     
     # The buttons for start, delete, and reset. The delete button
     # deletes the box number that you typed in the entry box.
     # Start begins the game with a clean board. Reset resets the
     # board back to the starting state to begin again.
     
-    NLP_Start_Button = ttk.Button(third_frame,
+    NLP_Start_Button = ttk.Button(secondary_frame,
                                      text='Start NLP')
-    NLP_Start_Button.grid(row=4, column=1, sticky=W,pady=5)
+    NLP_Start_Button.grid(row=1, column =0, pady=5)
     NLP_Start_Button['command'] = lambda: NLP(text_box,canvas, root)
     
-    Leap_Motion_Button = ttk.Button(third_frame,
+    Leap_Motion_Button = ttk.Button(secondary_frame,
                                      text='Start Leap Motion')
-    Leap_Motion_Button.grid(row=5, column=1, sticky=W,pady=5)
+    Leap_Motion_Button.grid(row=2, column =0, pady=5)
     Leap_Motion_Button['command'] = lambda: Leap_Motion(text_box,canvas, root)
     
-    Move_Button = ttk.Button(third_frame,
+    Move_Button = ttk.Button(secondary_frame,
                                      text='Move')
-    Move_Button.grid(row=6, column=1, sticky=W,pady=5)
+    Move_Button.grid(row=3, column =0, pady=5)
     Move_Button['command'] = lambda: Matrix(text_box,canvas, root) 
 
 #     reset_button = ttk.Button(secondary_frame,
