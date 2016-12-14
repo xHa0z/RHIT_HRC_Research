@@ -74,6 +74,7 @@ box_new = [0]*16
 # Counts how many boxes are remove then after 3 it ends and restarts the game,
 boxes_removed = 0
 read_box_selected = 0
+previous_box = -1
 
 # Test file passes information between Cyton and Main program
 with open('test.txt', 'w') as f:
@@ -88,7 +89,10 @@ with open('out_file.txt', 'w') as f:
     f.write(str(0))
  
 with open('Box_Selected.txt', 'w') as f:
-    f.write('')   
+    f.write('')  
+
+reset_array = np.array([[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]])    
+np.savetxt('Leap_Matrix.txt', reset_array, fmt='%1d') 
 '''
 Begins the game and board. Also adds number to the boxes.
 Please note that the boxes are hard coded to be a set pattern
@@ -205,7 +209,9 @@ def Matrix(text_box, canvas, root):
 # This is the temporary fix to update the gui after clicking the buttons would like to have it 
 # update automatically which requires multithreading
 def root_updater(root, text_box, canvas):
-    global boxes_removed, read_box_selected
+    global boxes_removed, read_box_selected, previous_box
+    
+    text_box.configure(state='normal')
     text_box.delete('1.0', END)
     if os.path.isfile('NLP_Speech.txt') != True:
          with open('NLP_Speech.txt', 'w') as f:
@@ -231,9 +237,18 @@ def root_updater(root, text_box, canvas):
             box_number = int(text)
             if box[box_number] != 0:
                 canvas.delete(box[box_number])
-                box[box_number] == 0
+                box[box_number] = 0
+                previous_box = box_number
                 boxes_removed = boxes_removed + 1
                 read_box_selected = 1
+            
+                 
+            elif box_number == previous_box:
+                box_number = 'This was the last box that was selected. Please try again.'
+            
+            else:
+                pass
+            
         else:
             Robot_Status = 'Standby'
             box_number = f.readline()
@@ -285,7 +300,7 @@ def root_updater(root, text_box, canvas):
                     'Robot Status: ' + str(Robot_Status) + '\n' +\
                     'NLP Speech: ' + str(NLP_Speech) + '\n' + 'Leap Motion: ' \
                     + str(controller_active))
-    
+    text_box.configure(state='disabled')
     # update the GUI
     text_box.update_idletasks()
     canvas.update_idletasks()
@@ -315,16 +330,22 @@ def GUI_Main():
     instruction_box.config(yscrollcommand=scr.set)
     instruction_box.grid(row=4, column=0, pady=10)
     scr.grid(row=4,column=0, sticky=E)
-    instruction_box.insert(1.0, '1.) Press the Start NLP button to begin talking to the robot.' 
+    instruction_box.insert(1.0, '1.) Please place the blocks in the cubby holes according to how they are positioned on '
+                                    'the GUI.' + '\n' + '\n'
+                                '2.) Press the Start NLP button to begin talking to the robot. When you are done pause for a '
+                                    'moment and then say "finish". ' 
                                     "Once you are done if it says that it didn't hear you you need to press the button again"
-                                    ' and try talking to the robot agian until it hears you.' + '\n' + '\n'
-                                '2.) Next hit the Leap Motion button and point to the the cubby spot (with the pencil) that you would like'
+                                    ' and try talking to the robot again until it hears you.' + '\n' + '\n'
+                                '3.) Next hit the Leap Motion button and point to the the cubby spot (with the pencil) that you would like'
                                     "selected. Again if it says that it didn't detected which cubby you need to hit the "
                                     'button again and point to the cubby spot.' + '\n' + '\n'
-                                '3.) Once the program has heard you and found the box that you want please click the move button'
+                                '4.) Once the program has heard you and found the box that you want please click the move button'
                                     ' to see the robot move to the block that you picked and move it.' + '\n' + '\n'
-                                '4.) After you have successfully removed three blocks you win and can restart the game!')
-
+                                '5.) After you have successfully removed three blocks you win and can restart the game!')
+    
+    instruction_box.configure(state='disabled')
+    text_box.configure(state='disabled')
+    
     # The canvas for the board and grid of boxes
     canvas = Canvas(main_frame, width=600, height=600)
     canvas.grid()
@@ -382,6 +403,8 @@ def GUI_Main():
     root.mainloop()
     
 def NLP_Main():
+    global previous_box
+    
     # stopStatement = false
     NLPTextFileName = "out_file"
     NLPMatrixInit = "0,0,0,0\n0,0,0,0\n0,0,0,0\n0,0,0,0"
@@ -394,41 +417,45 @@ def NLP_Main():
     if bool == False:
         return str("Didn't catch that.")
     probabilityMatrix, maxNumberIndex = multiplyMatrices(Leap_Matrix, NLPMatrix)
-    if maxNumberIndex == [0,0]:
-        x = 0
-    elif maxNumberIndex == [0,1]:
-        x = 1
-    elif maxNumberIndex == [0,2]:
-        x = 2
-    elif maxNumberIndex == [0,3]:
-        x = 3
-    elif maxNumberIndex == [1,0]:
-        x = 4
-    elif maxNumberIndex == [1,1]:
-        x = 5
-    elif maxNumberIndex == [1,2]:
-        x = 6
-    elif maxNumberIndex == [1,3]:
-        x = 7
-    elif maxNumberIndex == [2,0]:
-        x = 8
-    elif maxNumberIndex == [2,1]:
-        x = 9
-    elif maxNumberIndex == [2,2]:
-        x = 10
-    elif maxNumberIndex == [2,3]:
-        x = 11
-    elif maxNumberIndex == [3,0]:
-        x = 12
-    elif maxNumberIndex == [3,1]:
-        x = 13
-    elif maxNumberIndex == [3,2]:
-        x = 14
-    elif maxNumberIndex == [3,3]:
-        x = 15
+    if probabilityMatrix == [[0]]:
+        return
+
+    i = maxNumberIndex[0] 
+    k = maxNumberIndex[1] 
+    x = i * 4 + k
+#     if maxNumberIndex == [0,0]:
+#         x = 0
+#     elif maxNumberIndex == [0,1]:
+#         x = 1
+#     elif maxNumberIndex == [0,2]:
+#         x = 2
+#     elif maxNumberIndex == [0,3]:
+#         x = 3
+#     elif maxNumberIndex == [1,0]:
+#         x = 4
+#     elif maxNumberIndex == [1,1]:
+#         x = 5
+#     elif maxNumberIndex == [1,2]:
+#         x = 6
+#     elif maxNumberIndex == [1,3]:
+#         x = 7
+#     elif maxNumberIndex == [2,0]:
+#         x = 8
+#     elif maxNumberIndex == [2,1]:
+#         x = 9
+#     elif maxNumberIndex == [2,2]:
+#         x = 10
+#     elif maxNumberIndex == [2,3]:
+#         x = 11
+#     elif maxNumberIndex == [3,0]:
+#         x = 12
+#     elif maxNumberIndex == [3,1]:
+#         x = 13
+#     elif maxNumberIndex == [3,2]:
+#         x = 14
+#     elif maxNumberIndex == [3,3]:
+#         x = 15
             
-#     with open('test.txt', 'r') as f:
-#         print(f.read())
     if box[x] != 0:
         with open('test.txt', 'w') as f:
             f.write(str(x))
