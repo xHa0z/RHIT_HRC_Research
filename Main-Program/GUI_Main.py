@@ -75,6 +75,8 @@ box_new = [0]*16
 boxes_removed = 0
 read_box_selected = 0
 previous_box = -1
+Box_Selected = str('Nothing')
+Game_ID_Number = 1
 
 # Test file passes information between Cyton and Main program
 with open('test.txt', 'w') as f:
@@ -88,8 +90,8 @@ with open('NLP_Speech.txt', 'w') as f:
 with open('out_file.txt', 'w') as f:
     f.write(str(0))
  
-with open('Box_Selected.txt', 'w') as f:
-    f.write('')  
+# with open('Box_Selected.txt', 'w') as f:
+#     f.write('')  
 
 reset_array = np.array([[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]])    
 np.savetxt('Leap_Matrix.txt', reset_array, fmt='%1d') 
@@ -99,7 +101,7 @@ Please note that the boxes are hard coded to be a set pattern
 This function doesn't currently gernerate a random sequence of 
 boxes and colors. The pattern can be changed at the end function
 '''
-def start(canvas):
+def grid_create(canvas):  
     # They fill up the board by default and the color is white.
     for k in range(4):
         for j in range(4):
@@ -146,7 +148,53 @@ def start(canvas):
     
     # Calls the function to create the grid on the canvas
     grid(canvas)
+  
+  
+def consent_window():
+    # Create the consent frame each time the game is restarted to give their consent
+    # to be recorded
+    root_content = Tkinter.Tk()
+    consent_frame = ttk.Frame(root_content, padding = (25, 25))
+    consent_frame.grid()
     
+    # This is the consent box where the consent form is shown 
+    consent_box = Text(consent_frame, width=50, height=15, background='white', wrap=WORD)
+    consent_scroll = Scrollbar(consent_frame)
+    consent_scroll.config(command=YView)
+    consent_box.config(yscrollcommand=consent_scroll.set)
+    consent_box.grid(row=0, column=1, pady=10)
+    consent_scroll.grid(row=0,column=0, sticky=E)
+    consent_box.insert(1.0, '            Human-Robot Collaboration \n' 
+                            '\n    You are being invited to participate in a research study about human-robot collaboration. ' 
+                            'This study is being conducted by Dr. Ryder Winck and Dr. Carlotta Berry,' 
+                            'from the Mechanical Engineering and Electrical and Computer Engineering Departments '
+                            'at Rose-Hulman Institute of Technology. There are no known risks or costs if you decide' 
+                            'to participate in this research study. The information you provide will be used to improve '
+                            'algorithms that allow robots to interpret human behavior improving their ability to interact'
+                            ' with humans. The information collected may not benefit you directly, but the information learned'
+                            ' in this study should improve human-robot interaction. \n'
+                            '\n    Your participation in this study will be in the form of a game played with the robot.'
+                            ' There will be audio and video recordings of you collected as you participate in this game.'
+                            ' The data collected as you play the game will be anonymous. Should the data be published, '
+                            'no individual information will be disclosed. Your participation in this study is voluntary.'
+                            ' You may withdraw from participation at any time by simply clicking the button to end the game. \n'
+                            '\n    If you have any questions about the study, or wish to withdraw from the study after completing a '
+                            'game, please contact Ryder Winck by email at winckrc@rose-hulman.edu. If you have any questions about'
+                            " your rights as a research subject or if you feel you've been placed at risk, you may contact the "
+                            'Institutional Reviewer, Daniel Morris, by phone at (812) 877-8314, or by e-mail at morris@rose-hulman.edu. \n'
+                            '\n    By clicking below you consent to participate in this study:')            
+    consent_box.configure(state='disabled')
+    
+    # Create a button that says that they consent
+    Consent_Button = ttk.Button(consent_frame,
+                                     text='Consent to Terms')
+    Consent_Button.grid(row=1, column =1, pady=5)
+    
+    
+    Consent_Button['command'] = lambda: GUI_Main(root_content)
+    
+    root_content.mainloop()
+        
 
 
 # This function is used to create a grid system on the canvas
@@ -165,13 +213,16 @@ def restart(canvas, box):
         canvas.delete(box[k])
 
     del box[:]
-    start(canvas)
+    
 
 # After winning the game the restart button calls this function to start the game over
 def Restart_Game(root_win, root, win_frame,text_box, canvas, box):
     restart(canvas, box)
     root_updater(root, text_box, canvas)
     root_win.destroy()
+    root.destroy()
+    
+    consent_window()
     
 # This function is to change the text box color to red for when the Leap Motion Starts
 def Leap_Motion(text_box, canvas, root):
@@ -209,7 +260,7 @@ def Matrix(text_box, canvas, root):
 # This is the temporary fix to update the gui after clicking the buttons would like to have it 
 # update automatically which requires multithreading
 def root_updater(root, text_box, canvas):
-    global boxes_removed, read_box_selected, previous_box
+    global boxes_removed, read_box_selected, previous_box, Box_Selected
     
     text_box.configure(state='normal')
     text_box.delete('1.0', END)
@@ -228,13 +279,35 @@ def root_updater(root, text_box, canvas):
             Robot_Status = ''
             box_number = 'No Box Selected'
             
-    with open('Box_Selected.txt', 'r') as f:
-        text = f.readline()
-        
-        if text != '':
+#     with open('Box_Selected.txt', 'r') as f:
+#         text = f.readline()
+#         
+#         if text != '':
+#             # Deletes the box from the array which removes it from the screen after pressing update
+#             # then then it adds one to the amount of boxes removed.
+#             box_number = int(text)
+#             if box[box_number] != 0:
+#                 canvas.delete(box[box_number])
+#                 box[box_number] = 0
+#                 previous_box = box_number
+#                 boxes_removed = boxes_removed + 1
+#                 read_box_selected = 1
+#             
+#                  
+#             elif box_number == previous_box:
+#                 box_number = 'This was the last box that was selected. Please try again.'
+#             
+#             else:
+#                 pass
+#             
+#         else:
+#             Robot_Status = 'Standby'
+#             box_number = f.readline()
+            
+    if Box_Selected != str('Nothing'):
             # Deletes the box from the array which removes it from the screen after pressing update
             # then then it adds one to the amount of boxes removed.
-            box_number = int(text)
+            box_number = Box_Selected
             if box[box_number] != 0:
                 canvas.delete(box[box_number])
                 box[box_number] = 0
@@ -249,14 +322,15 @@ def root_updater(root, text_box, canvas):
             else:
                 pass
             
-        else:
-            Robot_Status = 'Standby'
-            box_number = f.readline()
+    else:
+        Robot_Status = 'Standby'
+        box_number = Box_Selected
                  
     if read_box_selected == 1:
         read_box_selected = 0
-        with open('Box_Selected.txt', 'w') as f:
-            f.write('')
+        Box_Selected = str('Nothing')
+#         with open('Box_Selected.txt', 'w') as f:
+#             f.write('')
             
     # This opens what was picked up by the NLP Speech and prints out what was said or "Didn't Catch That"
     # if the NLP didn't pick up the key words  
@@ -308,10 +382,11 @@ def root_updater(root, text_box, canvas):
     
     
        
-def GUI_Main():
+def GUI_Main(root_consent):
     # Tinker is being defined and the frames are being set up
     # The Main Frame holds the Canvas and the Secondary holds the 
     # text box and the buttons
+    root_consent.destroy()
     root = Tkinter.Tk()
     main_frame = ttk.Frame(root, padding=(25, 25))
     secondary_frame = ttk.Frame(root, padding=(25, 25))
@@ -351,7 +426,7 @@ def GUI_Main():
     canvas.grid()
     
     # Starts up the the game board right away.
-    start(canvas)
+    grid_create(canvas)
     
     #Labels with numbers to tell user to select which button
     one_label = ttk.Label(secondary_frame, text='1.')
@@ -385,21 +460,8 @@ def GUI_Main():
                                      text='Move')
     Move_Button.grid(row=3, column =0, pady=5)
     Move_Button['command'] = lambda: Matrix(text_box,canvas, root) 
-
-#     reset_button = ttk.Button(secondary_frame,
-#                                      text='Reset Board')
-#     reset_button.grid(row=7, column=0, sticky=W,pady=5)
-#     reset_button['command'] = lambda: root_updater(root, text_box, canvas)
-#     
-#     refresh_button = ttk.Button(secondary_frame,
-#                                      text='Refresh Button')
-#     refresh_button.grid(row=4, column=1, sticky=W,pady=5)
-#     refresh_button['command'] = lambda: root_updater(root, text_box, canvas)
-    
     
     root_updater(root, text_box, canvas)
-#     root.after(2000, root_updater(root, text_box, canvas))
-#     root.after(500, canvas)
     root.mainloop()
     
 def NLP_Main():
@@ -423,53 +485,23 @@ def NLP_Main():
     i = maxNumberIndex[0] 
     k = maxNumberIndex[1] 
     x = i * 4 + k
-#     if maxNumberIndex == [0,0]:
-#         x = 0
-#     elif maxNumberIndex == [0,1]:
-#         x = 1
-#     elif maxNumberIndex == [0,2]:
-#         x = 2
-#     elif maxNumberIndex == [0,3]:
-#         x = 3
-#     elif maxNumberIndex == [1,0]:
-#         x = 4
-#     elif maxNumberIndex == [1,1]:
-#         x = 5
-#     elif maxNumberIndex == [1,2]:
-#         x = 6
-#     elif maxNumberIndex == [1,3]:
-#         x = 7
-#     elif maxNumberIndex == [2,0]:
-#         x = 8
-#     elif maxNumberIndex == [2,1]:
-#         x = 9
-#     elif maxNumberIndex == [2,2]:
-#         x = 10
-#     elif maxNumberIndex == [2,3]:
-#         x = 11
-#     elif maxNumberIndex == [3,0]:
-#         x = 12
-#     elif maxNumberIndex == [3,1]:
-#         x = 13
-#     elif maxNumberIndex == [3,2]:
-#         x = 14
-#     elif maxNumberIndex == [3,3]:
-#         x = 15
             
     if box[x] != 0:
         with open('test.txt', 'w') as f:
             f.write(str(x))
-        with open('Box_Selected.txt', 'w') as f:
-            f.write(str(x)) 
+        Box_Selected = x
+#         with open('Box_Selected.txt', 'w') as f:
+#             f.write(str(x)) 
     else:
-        with open('Box_Selected.txt', 'w') as f:
-            f.write(str(x)) 
+        Box_Selected = x
+#         with open('Box_Selected.txt', 'w') as f:
+#             f.write(str(x)) 
    # resetTextFile(NLPTextFileName, NLPMatrixInit)
 
 
 def main():
     
-    GUI_Main()
+    consent_window()
     
 
 if __name__ == '__main__':
