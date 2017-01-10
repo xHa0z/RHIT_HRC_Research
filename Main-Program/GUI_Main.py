@@ -196,7 +196,21 @@ def consent_window():
     root_content.mainloop()
         
 
-
+# this function comes after the consent window and shows a number for the game for the person to remember.
+# (Not yet implemented)
+def Game_Counting_Window():
+    root_Game_Number = Tkinter.Tk()
+    Game_Number_Frame = ttk.Frame(root_Game_Number, padding = (25, 25))
+    Game_Number_Frame.grid()
+    
+     # Create a button that allows you to start the game after the game number is shown
+    Continue_Button = ttk.Button(consent_frame,
+                                     text='Continue')
+    Continue_Button.grid(row=1, column =1, pady=5)
+    
+    
+    Continue_Button['command'] = lambda: GUI_Main(root_content)
+    
 # This function is used to create a grid system on the canvas
 def grid(canvas):
     for k in range(4):
