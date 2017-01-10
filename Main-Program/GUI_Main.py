@@ -77,6 +77,7 @@ read_box_selected = 0
 previous_box = -1
 Box_Selected = str('Nothing')
 Game_ID_Number = 1
+Last_Game_Number = -1
 
 # Test file passes information between Cyton and Main program
 with open('test.txt', 'w') as f:
@@ -193,23 +194,53 @@ def consent_window():
     
     Consent_Button['command'] = lambda: GUI_Main(root_content)
     
+    with open('Game_Number_Counter.txt', 'r') as f:
+        Last_Game_Number = f.read()
+        
+    if Last_Game_Number == -1:
+        Last_Game_Number == 'file currupted'
+        
+    Game_Number_Label = ttk.Label(consent_frame, text='Your Game number is ' + str(Last_Game_Number) + '. Please '
+                                  'remember your game id. It will be displayed at the end one more time.')
+    Game_Number_Label.grid(row=2, column= 1, pady= 5)
+    
     root_content.mainloop()
         
 
 # this function comes after the consent window and shows a number for the game for the person to remember.
 # (Not yet implemented)
-def Game_Counting_Window():
-    root_Game_Number = Tkinter.Tk()
-    Game_Number_Frame = ttk.Frame(root_Game_Number, padding = (25, 25))
-    Game_Number_Frame.grid()
+def Game_Check():
+    root_Game_Check = Tkinter.Tk()
+    Game_Check_Frame= ttk.Frame(root_Game_Check, padding = (25, 25))
+    Game_Check_Frame.grid()
     
-     # Create a button that allows you to start the game after the game number is shown
-    Continue_Button = ttk.Button(consent_frame,
-                                     text='Continue')
-    Continue_Button.grid(row=1, column =1, pady=5)
+    Game_Check_Question_Label = ttk.Label(Game_Check_Frame, text='Is this the correct block ' + str(Box_Selected) +
+                                          ' ?')
+    Game_Check_Question_Label.grid(row=0, column= 0, pady= 5) 
+
+    #Buttons to see if the box selected is correct
+    Correct_Button = ttk.Button(root_Game_Check,
+                                     text='Correct Block')
+    Correct_Button.grid(row=1, column =0, pady=5, padx = 5)
     
+    Correct_Button['command'] = lambda: Correct_Block(root_Game_Check)
     
-    Continue_Button['command'] = lambda: GUI_Main(root_content)
+    Wrong_Button = ttk.Button(root_Game_Check,
+                                     text='Wrong Block')
+    Wrong_Button.grid(row=1, column =1, pady=5)
+    
+    Wrong_Button['command'] = lambda: Wrong_Block(root_Game_Check)
+    
+# This function writes to the robot file to move the robot if it is correct block picked
+def Correct_Block(Root_Game_Check):
+        with open('test.txt', 'w') as f:
+            f.write(str(Box_Selected))
+            
+        Root_Game_Check.destroy()
+        
+# This function does nothing and just tells the user to start over.
+def Wrong_Block(Root_Game_Check):
+    Root_Game_Check.destroy()
     
 # This function is used to create a grid system on the canvas
 def grid(canvas):
@@ -236,6 +267,9 @@ def Restart_Game(root_win, root, win_frame,text_box, canvas, box):
     root_win.destroy()
     root.destroy()
     
+    Last_Game_Number += 1
+    with open('Game_Number_Counter.txt', 'w') as f:
+        f.write(str(Last_Game_Number))
     consent_window()
     
 # This function is to change the text box color to red for when the Leap Motion Starts
@@ -247,6 +281,8 @@ def Leap_Motion(text_box, canvas, root):
     text_box.update_idletasks()
     
     root_updater(root, text_box, canvas)
+    
+    Matrix(text_box,canvas, root)
     
 # This function is to change the text box color to red when the NLP is running then green when it is done
 # Please note there is about a second and a half lag when starting the NLP
@@ -269,7 +305,8 @@ def Matrix(text_box, canvas, root):
     text_box.update_idletasks()
     
     root_updater(root, text_box, canvas)
-    return Matrix_Flag
+    Game_Check()
+#     return Matrix_Flag
 
 # This is the temporary fix to update the gui after clicking the buttons would like to have it 
 # update automatically which requires multithreading
@@ -340,9 +377,9 @@ def root_updater(root, text_box, canvas):
         Robot_Status = 'Standby'
         box_number = Box_Selected
                  
-    if read_box_selected == 1:
-        read_box_selected = 0
-        Box_Selected = str('Nothing')
+#     if read_box_selected == 1:
+#         read_box_selected = 0
+#         Box_Selected = str('Nothing')
 #         with open('Box_Selected.txt', 'w') as f:
 #             f.write('')
             
@@ -417,8 +454,8 @@ def GUI_Main(root_consent):
     scr = Scrollbar(secondary_frame)
     scr.config(command=YView)
     instruction_box.config(yscrollcommand=scr.set)
-    instruction_box.grid(row=4, column=0, pady=10)
-    scr.grid(row=4,column=0, sticky=E)
+    instruction_box.grid(row=5, column=0, pady=10)
+    scr.grid(row=5,column=0, sticky=E)
     instruction_box.insert(1.0, '1.) Please place the blocks in the cubby holes according to how they are positioned on '
                                     'the GUI.' + '\n' + '\n'
                                 '2.) Press the Start NLP button to begin talking to the robot. When you are done pause for a '
@@ -443,17 +480,17 @@ def GUI_Main(root_consent):
     grid_create(canvas)
     
     #Labels with numbers to tell user to select which button
-    one_label = ttk.Label(secondary_frame, text='1.')
-    one_label.place(x=250,y=112)
-    
-    two_label = ttk.Label(secondary_frame, text='2.')
-    two_label.place(x=230, y=152)
-    
-    three_label = ttk.Label(secondary_frame, text='3.')
-    three_label.place(x=250, y=192)
+#     one_label = ttk.Label(secondary_frame, text='1.')
+#     one_label.place(x=250,y=112)
+#     
+#     two_label = ttk.Label(secondary_frame, text='2.')
+#     two_label.place(x=230, y=152)
+#     
+#     three_label = ttk.Label(secondary_frame, text='3.')
+#     three_label.place(x=250, y=192)
     
     instruction_label = ttk.Label(secondary_frame, text='Instructions: ')
-    instruction_label.place(x=0, y=210)
+    instruction_label.grid(row=4, column =0, sticky = W)
     
     # The buttons for start, delete, and reset. The delete button
     # deletes the box number that you typed in the entry box.
@@ -471,15 +508,15 @@ def GUI_Main(root_consent):
     Leap_Motion_Button['command'] = lambda: Leap_Motion(text_box,canvas, root)
     
     Move_Button = ttk.Button(secondary_frame,
-                                     text='Move')
-    Move_Button.grid(row=3, column =0, pady=5)
-    Move_Button['command'] = lambda: Matrix(text_box,canvas, root) 
+                                     text='Quit')
+    Move_Button.grid(row=6, column =0, pady=5)
+#     Move_Button['command'] = lambda: pass
     
     root_updater(root, text_box, canvas)
     root.mainloop()
     
 def NLP_Main():
-    global previous_box
+    global previous_box, Box_Selected
     
     # stopStatement = false
     NLPTextFileName = "out_file"
@@ -499,18 +536,20 @@ def NLP_Main():
     i = maxNumberIndex[0] 
     k = maxNumberIndex[1] 
     x = i * 4 + k
-            
-    if box[x] != 0:
-        with open('test.txt', 'w') as f:
-            f.write(str(x))
-        Box_Selected = x
-#         with open('Box_Selected.txt', 'w') as f:
-#             f.write(str(x)) 
-    else:
-        Box_Selected = x
-#         with open('Box_Selected.txt', 'w') as f:
-#             f.write(str(x)) 
-   # resetTextFile(NLPTextFileName, NLPMatrixInit)
+           
+    Box_Selected = x
+    print(str(Box_Selected))
+#     if box[x] != 0:
+#         with open('test.txt', 'w') as f:
+#             f.write(str(x))
+#         Box_Selected = x
+# #         with open('Box_Selected.txt', 'w') as f:
+# #             f.write(str(x)) 
+#     else:
+#         Box_Selected = x
+# #         with open('Box_Selected.txt', 'w') as f:
+# #             f.write(str(x)) 
+#    # resetTextFile(NLPTextFileName, NLPMatrixInit)
 
 
 def main():
