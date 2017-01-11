@@ -209,7 +209,7 @@ def consent_window():
 
 # this function comes after the consent window and shows a number for the game for the person to remember.
 # (Not yet implemented)
-def Game_Check():
+def Game_Check(canvas):
     root_Game_Check = Tkinter.Tk()
     Game_Check_Frame= ttk.Frame(root_Game_Check, padding = (25, 25))
     Game_Check_Frame.grid()
@@ -223,7 +223,7 @@ def Game_Check():
                                      text='Correct Block')
     Correct_Button.grid(row=1, column =0, pady=5, padx = 5)
     
-    Correct_Button['command'] = lambda: Correct_Block(root_Game_Check)
+    Correct_Button['command'] = lambda: Correct_Block(root_Game_Check, canvas)
     
     Wrong_Button = ttk.Button(root_Game_Check,
                                      text='Wrong Block')
@@ -232,11 +232,32 @@ def Game_Check():
     Wrong_Button['command'] = lambda: Wrong_Block(root_Game_Check)
     
 # This function writes to the robot file to move the robot if it is correct block picked
-def Correct_Block(Root_Game_Check):
-        with open('test.txt', 'w') as f:
-            f.write(str(Box_Selected))
+def Correct_Block(Root_Game_Check, canvas):
+    with open('test.txt', 'w') as f:
+        f.write(str(Box_Selected))
+        
+    if Box_Selected != str('Nothing'):
+        # Deletes the box from the array which removes it from the screen after pressing update
+        # then then it adds one to the amount of boxes removed.
+        box_number = Box_Selected
+        if box[box_number] != 0:
+            canvas.delete(box[box_number])
+            box[box_number] = 0
+            previous_box = box_number
+            boxes_removed = boxes_removed + 1
+#                 read_box_selected = 1
+        
+        elif box_number == previous_box:
+            box_number = 'This was the last box that was selected. Please try again.'
+        
+        else:
+            pass
+        
+    else:
+        Robot_Status = 'Standby'
+        box_number = Box_Selected
             
-        Root_Game_Check.destroy()
+    Root_Game_Check.destroy()
         
 # This function does nothing and just tells the user to start over.
 def Wrong_Block(Root_Game_Check):
@@ -305,7 +326,7 @@ def Matrix(text_box, canvas, root):
     text_box.update_idletasks()
     
     root_updater(root, text_box, canvas)
-    Game_Check()
+    Game_Check(canvas)
 #     return Matrix_Flag
 
 # This is the temporary fix to update the gui after clicking the buttons would like to have it 
@@ -355,27 +376,7 @@ def root_updater(root, text_box, canvas):
 #             Robot_Status = 'Standby'
 #             box_number = f.readline()
             
-    if Box_Selected != str('Nothing'):
-            # Deletes the box from the array which removes it from the screen after pressing update
-            # then then it adds one to the amount of boxes removed.
-            box_number = Box_Selected
-            if box[box_number] != 0:
-                canvas.delete(box[box_number])
-                box[box_number] = 0
-                previous_box = box_number
-                boxes_removed = boxes_removed + 1
-                read_box_selected = 1
-            
-                 
-            elif box_number == previous_box:
-                box_number = 'This was the last box that was selected. Please try again.'
-            
-            else:
-                pass
-            
-    else:
-        Robot_Status = 'Standby'
-        box_number = Box_Selected
+
                  
 #     if read_box_selected == 1:
 #         read_box_selected = 0
