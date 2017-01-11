@@ -47,6 +47,8 @@ import sys
 import signal
 import datetime
 from threading import Thread
+import random
+from random import *
 
 
 from google.cloud import credentials
@@ -58,11 +60,13 @@ import pyaudio
 from six.moves import queue
 
 
+
 from MainFunctions import getMatrixFromFile, \
                           multiplyMatrices, \
                           checkMatrix, \
                           resetTextFile
 import MainFunctions
+
 
 import modular_prob_dist_sliding_window as lpp
 from LeapPython import Controller_is_connected_get
@@ -76,9 +80,11 @@ boxes_removed = 0
 read_box_selected = 0
 previous_box = -1
 Box_Selected = str('Nothing')
-Game_ID_Number = 1
-Last_Game_Number = -1
 
+with open('Game_Number_Counter.txt', 'r') as f:
+        Last_Game_Number = f.read()
+        
+Last_Game_Number = int(Last_Game_Number)
 # Test file passes information between Cyton and Main program
 with open('test.txt', 'w') as f:
     f.write('')
@@ -94,6 +100,8 @@ with open('out_file.txt', 'w') as f:
 # with open('Box_Selected.txt', 'w') as f:
 #     f.write('')  
 
+
+
 reset_array = np.array([[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]])    
 np.savetxt('Leap_Matrix.txt', reset_array, fmt='%1d') 
 '''
@@ -103,6 +111,8 @@ This function doesn't currently gernerate a random sequence of
 boxes and colors. The pattern can be changed at the end function
 '''
 def grid_create(canvas):  
+    Random_Number_Of_Boxes = randint(0, 16)
+    
     # They fill up the board by default and the color is white.
     for k in range(4):
         for j in range(4):
@@ -111,6 +121,8 @@ def grid_create(canvas):
             canvas.create_text((75 + 150 * j, 75 + 150 * k), text=(j + k * 4),
                                 font=('Times New Roman', 20))
             box.append(num)
+            
+    
             
     # Manually chosen boxes and colors
     canvas.itemconfig(box[0], fill="red")
@@ -155,6 +167,7 @@ def consent_window():
     # Create the consent frame each time the game is restarted to give their consent
     # to be recorded
     root_content = Tkinter.Tk()
+    root_content.wm_title('Consent Window')
     consent_frame = ttk.Frame(root_content, padding = (25, 25))
     consent_frame.grid()
     
@@ -193,12 +206,6 @@ def consent_window():
     
     
     Consent_Button['command'] = lambda: GUI_Main(root_content)
-    
-    with open('Game_Number_Counter.txt', 'r') as f:
-        Last_Game_Number = f.read()
-        
-    if Last_Game_Number == -1:
-        Last_Game_Number == 'file currupted'
         
     Game_Number_Label = ttk.Label(consent_frame, text='Your Game number is ' + str(Last_Game_Number) + '. Please '
                                   'remember your game id. It will be displayed at the end one more time.')
@@ -210,7 +217,9 @@ def consent_window():
 # this function comes after the consent window and shows a number for the game for the person to remember.
 # (Not yet implemented)
 def Game_Check(canvas):
+
     root_Game_Check = Tkinter.Tk()
+    root_Game_Check.wm_title('Block Checker')
     Game_Check_Frame= ttk.Frame(root_Game_Check, padding = (25, 25))
     Game_Check_Frame.grid()
     
@@ -227,41 +236,44 @@ def Game_Check(canvas):
     
     Wrong_Button = ttk.Button(root_Game_Check,
                                      text='Wrong Block')
-    Wrong_Button.grid(row=1, column =1, pady=5)
+    Wrong_Button.grid(row=1, column =1, pady=5, padx = 5)
     
     Wrong_Button['command'] = lambda: Wrong_Block(root_Game_Check)
     
+
+
 # This function writes to the robot file to move the robot if it is correct block picked
 def Correct_Block(Root_Game_Check, canvas):
     with open('test.txt', 'w') as f:
         f.write(str(Box_Selected))
         
-    if Box_Selected != str('Nothing'):
+#     if Box_Selected != str('Nothing'):
         # Deletes the box from the array which removes it from the screen after pressing update
         # then then it adds one to the amount of boxes removed.
-        box_number = Box_Selected
-        if box[box_number] != 0:
-            canvas.delete(box[box_number])
-            box[box_number] = 0
-            previous_box = box_number
-            boxes_removed = boxes_removed + 1
+    box_number = Box_Selected
+    if box[box_number] != 0:
+        canvas.delete(box[box_number])
+        box[box_number] = 0
+        previous_box = box_number
+        boxes_removed = boxes_removed + 1
 #                 read_box_selected = 1
-        
-        elif box_number == previous_box:
-            box_number = 'This was the last box that was selected. Please try again.'
-        
-        else:
-            pass
-        
+    
+    elif box_number == previous_box:
+        box_number = 'This was the last box that was selected. Please try again.'
+    
     else:
-        Robot_Status = 'Standby'
-        box_number = Box_Selected
-            
+        pass
+        
+#     else:
+#         Robot_Status = 'Standby'
+#         box_number = Box_Selected
+#             
     Root_Game_Check.destroy()
         
 # This function does nothing and just tells the user to start over.
 def Wrong_Block(Root_Game_Check):
     Root_Game_Check.destroy()
+    box_number = 'Wrong Box! Please start over by click the NLP button then the Leap.'
     
 # This function is used to create a grid system on the canvas
 def grid(canvas):
@@ -271,7 +283,6 @@ def grid(canvas):
         
         # Column of lines
         canvas.create_line(k * 150, 0, k * 150, 600, width=3)
-
 
 # To get back to the original state
 def restart(canvas, box):
@@ -283,7 +294,12 @@ def restart(canvas, box):
 
 # After winning the game the restart button calls this function to start the game over
 def Restart_Game(root_win, root, win_frame,text_box, canvas, box):
-    restart(canvas, box)
+#     restart(canvas, box)
+    for k in range(16):
+        canvas.delete(box[k])
+
+    del box[:]
+    
     root_updater(root, text_box, canvas)
     root_win.destroy()
     root.destroy()
@@ -310,6 +326,7 @@ def Leap_Motion(text_box, canvas, root):
 def NLP(text_box,canvas, root):
     text_box.configure(background='red')
     text_box.update_idletasks()
+#     threading.New_Thread('streaming_windows.py')
     os.system('streaming_windows.py')
     text_box.configure(background='green')
     text_box.update_idletasks()
@@ -321,13 +338,51 @@ def NLP(text_box,canvas, root):
 def Matrix(text_box, canvas, root):
     text_box.configure(background='red')
     text_box.update_idletasks()
-    Matrix_Flag = NLP_Main()
+    Matrix_Flag = Matrix_Multiplier()
     text_box.configure(background='green')
-    text_box.update_idletasks()
     
-    root_updater(root, text_box, canvas)
     Game_Check(canvas)
+    
+    text_box.update_idletasks()
+    root_updater(root, text_box, canvas)
+    
 #     return Matrix_Flag
+
+def Matrix_Multiplier():
+    global previous_box, Box_Selected
+    
+    # stopStatement = false
+    NLPTextFileName = "out_file"
+    NLPMatrixInit = "0,0,0,0\n0,0,0,0\n0,0,0,0\n0,0,0,0"
+    
+    # while stopStatement == false:
+    NLPMatrix = getMatrixFromFile(NLPTextFileName)
+    Leap_Matrix = getMatrixFromFile('Leap_Matrix')
+    
+    bool = checkMatrix(NLPMatrix)
+    if bool == False:
+        return str("Didn't catch that.")
+    probabilityMatrix, maxNumberIndex = multiplyMatrices(Leap_Matrix, NLPMatrix)
+    if probabilityMatrix == [[0]]:
+        return
+
+    i = maxNumberIndex[0] 
+    k = maxNumberIndex[1] 
+    x = i * 4 + k
+           
+    Box_Selected = x
+    print(str(Box_Selected))
+#     if box[x] != 0:
+#         with open('test.txt', 'w') as f:
+#             f.write(str(x))
+#         Box_Selected = x
+# #         with open('Box_Selected.txt', 'w') as f:
+# #             f.write(str(x)) 
+#     else:
+#         Box_Selected = x
+# #         with open('Box_Selected.txt', 'w') as f:
+# #             f.write(str(x)) 
+#    # resetTextFile(NLPTextFileName, NLPMatrixInit)
 
 # This is the temporary fix to update the gui after clicking the buttons would like to have it 
 # update automatically which requires multithreading
@@ -413,8 +468,9 @@ def root_updater(root, text_box, canvas):
         win_frame = ttk.Frame(root_win, padding = (25, 25))
         win_frame.grid()
         # Label for the win frame
-        win_label = Label(win_frame, text='Congratulations on getting three blocks! You win!' 
-                        ' Now click the restart button to begin a new game!')
+        win_label = Label(win_frame, text='Congratulations on getting three blocks! You win! \n' 
+                        ' Now click the restart button to begin a new game! \n'
+                        '\nYour Game number is: ' + str(Last_Game_Number) + '.')
         win_label.grid(row = 0, column = 0)
         restart_button = ttk.Button(win_frame,
                                     text='Restart Game')
@@ -432,8 +488,48 @@ def root_updater(root, text_box, canvas):
     canvas.update_idletasks()
     root.update_idletasks()
     
+def Quit_Button_Function(root, canvas):
+    global Last_Game_Number
+    Root_Quit = Tkinter.Tk()
+    Quit_Frame= ttk.Frame(Root_Quit, padding = (25, 25))
+    Quit_Frame.grid()
     
-       
+    Delete_CheckBox_Check = IntVar()
+    Delete_Checkbox = Checkbutton(Quit_Frame, text='Delete my data!', var = Delete_CheckBox_Check)
+    Delete_Checkbox.grid(row=1, column=0, pady=5, padx=5, sticky = W)
+    
+    Delete_Label = ttk.Label(Quit_Frame, text='Are you sure you to quit? \n'
+                                            'If you want your data deleted check the box and then press Quit. '
+                                            'Otherwise data will be stored. \nYour Game number is: ' +
+                                            str(Last_Game_Number) + '.' )
+    Delete_Label.grid(row=0, column=0, pady=5, padx=5)
+    
+    Quit_Button_Second = ttk.Button(Quit_Frame,
+                                     text='Quit')
+    Quit_Button_Second.grid(row=2, column =0, pady=5, padx=5)
+    
+    Quit_Button_Second['command'] = lambda: Quit_Button_Function_Continue(root, Root_Quit, canvas, Quit_Button_Second)
+    
+def Quit_Button_Function_Continue(root, root_quit, canvas, checkbox):
+    global Last_Game_Number
+    Last_Game_Number += 1
+    with open('Game_Number_Counter.txt', 'w') as f:
+        f.write(str(Last_Game_Number))
+        
+    for k in range(16):
+        canvas.delete(box[k])
+
+    del box[:]
+    
+    boxes_removed = 0
+    
+    if checkbox == 1:
+        pass
+    
+    root.destroy()
+    root_quit.destroy()
+    consent_window()
+          
 def GUI_Main(root_consent):
     # Tinker is being defined and the frames are being set up
     # The Main Frame holds the Canvas and the Secondary holds the 
@@ -508,49 +604,13 @@ def GUI_Main(root_consent):
     Leap_Motion_Button.grid(row=2, column =0, pady=5)
     Leap_Motion_Button['command'] = lambda: Leap_Motion(text_box,canvas, root)
     
-    Move_Button = ttk.Button(secondary_frame,
+    Quit_Button = ttk.Button(secondary_frame,
                                      text='Quit')
-    Move_Button.grid(row=6, column =0, pady=5)
-#     Move_Button['command'] = lambda: pass
+    Quit_Button.grid(row=6, column =0, pady=5)
+    Quit_Button['command'] = lambda: Quit_Button_Function(root, canvas)
     
     root_updater(root, text_box, canvas)
     root.mainloop()
-    
-def NLP_Main():
-    global previous_box, Box_Selected
-    
-    # stopStatement = false
-    NLPTextFileName = "out_file"
-    NLPMatrixInit = "0,0,0,0\n0,0,0,0\n0,0,0,0\n0,0,0,0"
-    
-    # while stopStatement == false:
-    NLPMatrix = getMatrixFromFile(NLPTextFileName)
-    Leap_Matrix = getMatrixFromFile('Leap_Matrix')
-    
-    bool = checkMatrix(NLPMatrix)
-    if bool == False:
-        return str("Didn't catch that.")
-    probabilityMatrix, maxNumberIndex = multiplyMatrices(Leap_Matrix, NLPMatrix)
-    if probabilityMatrix == [[0]]:
-        return
-
-    i = maxNumberIndex[0] 
-    k = maxNumberIndex[1] 
-    x = i * 4 + k
-           
-    Box_Selected = x
-    print(str(Box_Selected))
-#     if box[x] != 0:
-#         with open('test.txt', 'w') as f:
-#             f.write(str(x))
-#         Box_Selected = x
-# #         with open('Box_Selected.txt', 'w') as f:
-# #             f.write(str(x)) 
-#     else:
-#         Box_Selected = x
-# #         with open('Box_Selected.txt', 'w') as f:
-# #             f.write(str(x)) 
-#    # resetTextFile(NLPTextFileName, NLPMatrixInit)
 
 
 def main():
