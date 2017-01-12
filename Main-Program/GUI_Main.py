@@ -81,7 +81,7 @@ boxes_removed = 0
 read_box_selected = 0
 previous_box = -1
 Box_Selected = str('Nothing')
-Wait_Counter = 0
+Wait_Timer = 0
 
 with open('Game_Number_Counter.txt', 'r') as f:
         Last_Game_Number = f.read()
@@ -237,7 +237,10 @@ def consent_window():
 # this function comes after the consent window and shows a number for the game for the person to remember.
 # (Not yet implemented)
 def Game_Check(canvas):
-
+    
+    Wait_Timer.cancel()
+    Wait_Timer.start()
+    
     root_Game_Check = Tkinter.Tk()
     root_Game_Check.wm_title('Block Checker')
     Game_Check_Frame= ttk.Frame(root_Game_Check, padding = (25, 25))
@@ -265,6 +268,9 @@ def Game_Check(canvas):
 # This function writes to the robot file to move the robot if it is correct block picked
 def Correct_Block(Root_Game_Check, canvas):
     global previous_box
+    Wait_Timer.cancel()
+    Wait_Timer.start()
+    
     with open('test.txt', 'w') as f:
         f.write(str(Box_Selected))
         
@@ -294,6 +300,9 @@ def Correct_Block(Root_Game_Check, canvas):
         
 # This function does nothing and just tells the user to start over.
 def Wrong_Block(Root_Game_Check):
+    Wait_Timer.cancel()
+    Wait_Timer.start()
+    
     Root_Game_Check.destroy()
     box_number = 'Wrong Box! Please start over by click the NLP button then the Leap.'
     
@@ -330,10 +339,14 @@ def Restart_Game(root_win, root, win_frame,text_box, canvas, box):
     Last_Game_Number += 1
     with open('Game_Number_Counter.txt', 'w') as f:
         f.write(str(Last_Game_Number))
+        
+    Wait_Timer.cancel()
     consent_window()
     
 # This function is to change the text box color to red for when the Leap Motion Starts
 def Leap_Motion(text_box, canvas, root):
+    Wait_Timer.cancel()
+    Wait_Timer.start() 
     text_box.configure(background='red')
     text_box.update_idletasks()
     os.system('modular_prob_dist_sliding_window.py')
@@ -349,6 +362,8 @@ def Leap_Motion(text_box, canvas, root):
 # This function is to change the text box color to red when the NLP is running then green when it is done
 # Please note there is about a second and a half lag when starting the NLP
 def NLP(text_box,canvas, root):
+    Wait_Timer.cancel()
+    Wait_Timer.start()
     text_box.configure(background='red')
     text_box.update_idletasks()
 #     threading.New_Thread('streaming_windows.py')
@@ -516,6 +531,9 @@ def root_updater(root, text_box, canvas):
     
 def Quit_Button_Function(root, canvas):
     global Last_Game_Number
+    Wait_Timer.cancel()
+    Wait_Timer.start()
+    
     Root_Quit = Tkinter.Tk()
     Quit_Frame= ttk.Frame(Root_Quit, padding = (25, 25))
     Quit_Frame.grid()
@@ -554,12 +572,18 @@ def Quit_Button_Function_Continue(root, root_quit, canvas, checkbox):
     
     root.destroy()
     root_quit.destroy()
+    
+    Wait_Timer.cancel()
+
     consent_window()
           
 def GUI_Main(root_consent):
     # Tinker is being defined and the frames are being set up
     # The Main Frame holds the Canvas and the Secondary holds the 
     # text box and the buttons
+    Wait_Timer = threading.Timer(60.0, hello) # Runs a timer and after 60 seconds of no activity it times out.
+    Wait_Timer.start() 
+    
     root_consent.destroy()
     root = Tkinter.Tk()
     main_frame = ttk.Frame(root, padding=(25, 25))
@@ -637,6 +661,10 @@ def GUI_Main(root_consent):
     
     root_updater(root, text_box, canvas)
     root.mainloop()
+
+def hello():
+    print ("hello, world")
+
 
 
 def main():
