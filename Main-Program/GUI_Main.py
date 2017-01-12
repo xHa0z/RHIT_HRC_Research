@@ -110,10 +110,13 @@ Please note that the boxes are hard coded to be a set pattern
 This function doesn't currently gernerate a random sequence of 
 boxes and colors. The pattern can be changed at the end function
 '''
-def grid_create(canvas):  
-    Random_Number_Of_Boxes = randint(0, 16)
+def grid_create(canvas): 
+    Random_Number_of_Boxes = randint(5,15) 
+    Box_Postion = sample(xrange(0,15), Random_Number_of_Boxes)
+    Box_Postion.sort()
+    print(Box_Postion)
     
-    # They fill up the board by default and the color is white.
+    # They fill up the board by default with white boxes
     for k in range(4):
         for j in range(4):
             num = canvas.create_rectangle(25 + 150 * j, 25 + 150 * k, 125 + j * 150,
@@ -122,15 +125,26 @@ def grid_create(canvas):
                                 font=('Times New Roman', 20))
             box.append(num)
             
+    Possible_colors = ['red','red','red','red','red','green','green','green','green','green','blue','blue','blue','blue','blue','blue']
+    shuffle(Possible_colors)
+    shuffle(Possible_colors)
+    
+    Box_index = 0
+    while True:
+        print(Box_index)
+        if Box_index == len(Box_Postion) - 1:
+            break
+        canvas.itemconfig(box[Box_Postion[Box_index]], fill=Possible_colors[Box_index])
+        Box_index += 1
     
             
     # Manually chosen boxes and colors
-    canvas.itemconfig(box[0], fill="red")
-    canvas.itemconfig(box[6], fill="blue")
-    canvas.itemconfig(box[12], fill="blue")
-    canvas.itemconfig(box[15], fill="blue")
-    canvas.itemconfig(box[2], fill="green")
-    canvas.itemconfig(box[9], fill="green")
+#     canvas.itemconfig(box[0], fill="red")
+#     canvas.itemconfig(box[6], fill="blue")
+#     canvas.itemconfig(box[12], fill="blue")
+#     canvas.itemconfig(box[15], fill="blue")
+#     canvas.itemconfig(box[2], fill="green")
+#     canvas.itemconfig(box[9], fill="green")
     
     # Deletes the boxes that were originally there and not the chosen ones
     # Color Code:
@@ -152,7 +166,7 @@ def grid_create(canvas):
             
         else:
             box_new[k] = 3
-    
+    print(box_new)
     
     # This reshapes the two d array of boxes to matrix and saves it to the 
     # game text file.
@@ -160,7 +174,13 @@ def grid_create(canvas):
     np.savetxt('game.txt', box_matrix, fmt='%1d')
     
     # Calls the function to create the grid on the canvas
-    grid(canvas)
+#     grid(canvas)
+    for k in range(4):
+        # Row of Lines
+        canvas.create_line(0, k * 150, 600, k * 150, width=3)
+        
+        # Column of lines
+        canvas.create_line(k * 150, 0, k * 150, 600, width=3)
   
   
 def consent_window():
@@ -248,10 +268,10 @@ def Correct_Block(Root_Game_Check, canvas):
         f.write(str(Box_Selected))
         
 #     if Box_Selected != str('Nothing'):
-        # Deletes the box from the array which removes it from the screen after pressing update
-        # then then it adds one to the amount of boxes removed.
+    # Deletes the box from the array which removes it from the screen after pressing update
+    # then then it adds one to the amount of boxes removed.
     box_number = Box_Selected
-    if box[box_number] != 0:
+    if box[box_number] != 0 & box_number != previous_box:
         canvas.delete(box[box_number])
         box[box_number] = 0
         previous_box = box_number
@@ -267,7 +287,8 @@ def Correct_Block(Root_Game_Check, canvas):
 #     else:
 #         Robot_Status = 'Standby'
 #         box_number = Box_Selected
-#             
+#       
+          
     Root_Game_Check.destroy()
         
 # This function does nothing and just tells the user to start over.
@@ -277,12 +298,13 @@ def Wrong_Block(Root_Game_Check):
     
 # This function is used to create a grid system on the canvas
 def grid(canvas):
-    for k in range(4):
-        # Row of Lines
-        canvas.create_line(0, k * 150, 600, k * 150, width=3)
-        
-        # Column of lines
-        canvas.create_line(k * 150, 0, k * 150, 600, width=3)
+#     for k in range(4):
+#         # Row of Lines
+#         canvas.create_line(0, k * 150, 600, k * 150, width=3)
+#         
+#         # Column of lines
+#         canvas.create_line(k * 150, 0, k * 150, 600, width=3)
+    pass
 
 # To get back to the original state
 def restart(canvas, box):
