@@ -81,6 +81,7 @@ boxes_removed = 0
 read_box_selected = 0
 previous_box = -1
 Box_Selected = str('Nothing')
+Wait_Counter = 0
 
 with open('Game_Number_Counter.txt', 'r') as f:
         Last_Game_Number = f.read()
@@ -341,7 +342,7 @@ def Leap_Motion(text_box, canvas, root):
     
     root_updater(root, text_box, canvas)
     
-    print(Leap_Matrix)
+    print('Leap Matrix =' + str(Leap_Matrix))
     
     Matrix(text_box,canvas, root)
     
@@ -387,6 +388,7 @@ def Matrix_Multiplier():
     if bool == False:
         return str("Didn't catch that.")
     probabilityMatrix, maxNumberIndex = multiplyMatrices(Leap_Matrix, NLPMatrix)
+    Print('Leap_Matrix = ' + str(Leap_Matrix))
     if probabilityMatrix == [[0]]:
         return
 
