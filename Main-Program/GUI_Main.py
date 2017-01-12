@@ -69,6 +69,7 @@ import MainFunctions
 
 
 import modular_prob_dist_sliding_window as lpp
+from modular_prob_dist_sliding_window import Leap_Matrix
 from LeapPython import Controller_is_connected_get
 
 # Array to hold all of the boxes in
@@ -114,7 +115,6 @@ def grid_create(canvas):
     Random_Number_of_Boxes = randint(5,15) 
     Box_Postion = sample(xrange(0,15), Random_Number_of_Boxes)
     Box_Postion.sort()
-    print(Box_Postion)
     
     # They fill up the board by default with white boxes
     for k in range(4):
@@ -131,7 +131,6 @@ def grid_create(canvas):
     
     Box_index = 0
     while True:
-        print(Box_index)
         if Box_index == len(Box_Postion) - 1:
             break
         canvas.itemconfig(box[Box_Postion[Box_index]], fill=Possible_colors[Box_index])
@@ -166,7 +165,7 @@ def grid_create(canvas):
             
         else:
             box_new[k] = 3
-    print(box_new)
+    
     
     # This reshapes the two d array of boxes to matrix and saves it to the 
     # game text file.
@@ -264,6 +263,7 @@ def Game_Check(canvas):
 
 # This function writes to the robot file to move the robot if it is correct block picked
 def Correct_Block(Root_Game_Check, canvas):
+    global previous_box
     with open('test.txt', 'w') as f:
         f.write(str(Box_Selected))
         
@@ -340,6 +340,8 @@ def Leap_Motion(text_box, canvas, root):
     text_box.update_idletasks()
     
     root_updater(root, text_box, canvas)
+    
+    print(Leap_Matrix)
     
     Matrix(text_box,canvas, root)
     

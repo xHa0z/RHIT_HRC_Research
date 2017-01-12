@@ -39,6 +39,8 @@ filename_XZ = "Leap_Coordinates_XZ.txt"  # Stored data for x,z
 
 count = 0
 
+Leap_Matrix = 0
+
 
 # Opens the File to write and clear the data out of the text file(Gish)
 with open(filename_XY, 'w') as f:
@@ -247,6 +249,7 @@ class calculations(object):
                 j0 = 75 * j
                 prob[i, j] = pdf[i0:i0 + 75, j0:j0 + 75].sum()
 
+        Leap_Matrix = prob
         return prob
 
 def main():
@@ -294,6 +297,8 @@ def main():
 
 
     controller.remove_listener(listener)
+    
+    return prob
 
 
 if __name__ == "__main__":
