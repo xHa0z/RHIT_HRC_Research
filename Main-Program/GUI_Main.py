@@ -581,7 +581,7 @@ def GUI_Main(root_consent):
     # Tinker is being defined and the frames are being set up
     # The Main Frame holds the Canvas and the Secondary holds the 
     # text box and the buttons
-    Wait_Timer = threading.Timer(60.0, hello) # Runs a timer and after 60 seconds of no activity it times out.
+    Wait_Timer = threading.Timer(5.0, End_Game_Timer) # Runs a timer and after 60 seconds of no activity it times out.
     Wait_Timer.start() 
     
     root_consent.destroy()
@@ -662,8 +662,10 @@ def GUI_Main(root_consent):
     root_updater(root, text_box, canvas)
     root.mainloop()
 
-def hello():
-    print ("hello, world")
+def End_Game_Timer():
+    Root_Timeout = Tkinter.Tk()
+    Timeout_Frame= ttk.Frame(Root_Timeout, padding = (25, 25))
+    Timeout_Frame.grid()
 
 
 
