@@ -81,7 +81,6 @@ boxes_removed = 0
 read_box_selected = 0
 previous_box = -1
 Box_Selected = str('Nothing')
-Wait_Timer = 0
 
 with open('Game_Number_Counter.txt', 'r') as f:
         Last_Game_Number = f.read()
@@ -173,6 +172,7 @@ def grid_create(canvas):
     box_matrix = np.reshape(box_new, (4,4))
     np.savetxt('game.txt', box_matrix, fmt='%1d')
     
+    
     # Calls the function to create the grid on the canvas
 #     grid(canvas)
     for k in range(4):
@@ -238,9 +238,6 @@ def consent_window():
 # (Not yet implemented)
 def Game_Check(canvas):
     
-    Wait_Timer.cancel()
-    Wait_Timer.start()
-    
     root_Game_Check = Tkinter.Tk()
     root_Game_Check.wm_title('Block Checker')
     Game_Check_Frame= ttk.Frame(root_Game_Check, padding = (25, 25))
@@ -268,8 +265,6 @@ def Game_Check(canvas):
 # This function writes to the robot file to move the robot if it is correct block picked
 def Correct_Block(Root_Game_Check, canvas):
     global previous_box
-    Wait_Timer.cancel()
-    Wait_Timer.start()
     
     with open('test.txt', 'w') as f:
         f.write(str(Box_Selected))
@@ -300,9 +295,7 @@ def Correct_Block(Root_Game_Check, canvas):
         
 # This function does nothing and just tells the user to start over.
 def Wrong_Block(Root_Game_Check):
-    Wait_Timer.cancel()
-    Wait_Timer.start()
-    
+
     Root_Game_Check.destroy()
     box_number = 'Wrong Box! Please start over by click the NLP button then the Leap.'
     
@@ -340,13 +333,12 @@ def Restart_Game(root_win, root, win_frame,text_box, canvas, box):
     with open('Game_Number_Counter.txt', 'w') as f:
         f.write(str(Last_Game_Number))
         
-    Wait_Timer.cancel()
+
     consent_window()
     
 # This function is to change the text box color to red for when the Leap Motion Starts
-def Leap_Motion(text_box, canvas, root):
-    Wait_Timer.cancel()
-    Wait_Timer.start() 
+def Leap_Motion(text_box, canvas, root, Wait_Timer):
+
     text_box.configure(background='red')
     text_box.update_idletasks()
     os.system('modular_prob_dist_sliding_window.py')
@@ -361,12 +353,17 @@ def Leap_Motion(text_box, canvas, root):
     
 # This function is to change the text box color to red when the NLP is running then green when it is done
 # Please note there is about a second and a half lag when starting the NLP
-def NLP(text_box,canvas, root):
-    Wait_Timer.cancel()
-    Wait_Timer.start()
+def NLP_Thread(text_box,canvas, root, wait_timer):
+        
+        NLP_Thread = threading.Thread(NLP(text_box, canvas, root, wait_timer))
+        NLP_Thread.start()
+        
+def NLP(text_box,canvas, root, Wait_Timer):
+    
+    
     text_box.configure(background='red')
     text_box.update_idletasks()
-#     threading.New_Thread('streaming_windows.py')
+
     os.system('streaming_windows.py')
     text_box.configure(background='green')
     text_box.update_idletasks()
@@ -531,8 +528,7 @@ def root_updater(root, text_box, canvas):
     
 def Quit_Button_Function(root, canvas):
     global Last_Game_Number
-    Wait_Timer.cancel()
-    Wait_Timer.start()
+
     
     Root_Quit = Tkinter.Tk()
     Quit_Frame= ttk.Frame(Root_Quit, padding = (25, 25))
@@ -572,8 +568,6 @@ def Quit_Button_Function_Continue(root, root_quit, canvas, checkbox):
     
     root.destroy()
     root_quit.destroy()
-    
-    Wait_Timer.cancel()
 
     consent_window()
           
@@ -583,6 +577,7 @@ def GUI_Main(root_consent):
     # text box and the buttons
     Wait_Timer = threading.Timer(5.0, End_Game_Timer) # Runs a timer and after 60 seconds of no activity it times out.
     Wait_Timer.start() 
+    
     
     root_consent.destroy()
     root = Tkinter.Tk()
@@ -647,17 +642,17 @@ def GUI_Main(root_consent):
     NLP_Start_Button = ttk.Button(secondary_frame,
                                      text='Start NLP')
     NLP_Start_Button.grid(row=1, column =0, pady=5)
-    NLP_Start_Button['command'] = lambda: NLP(text_box,canvas, root)
+    NLP_Start_Button['command'] = lambda: NLP(text_box,canvas, root, Wait_Timer)
     
     Leap_Motion_Button = ttk.Button(secondary_frame,
                                      text='Start Leap Motion')
     Leap_Motion_Button.grid(row=2, column =0, pady=5)
-    Leap_Motion_Button['command'] = lambda: Leap_Motion(text_box,canvas, root)
+    Leap_Motion_Button['command'] = lambda: Leap_Motion(text_box,canvas, root, Wait_Timer)
     
     Quit_Button = ttk.Button(secondary_frame,
                                      text='Quit')
     Quit_Button.grid(row=6, column =0, pady=5)
-    Quit_Button['command'] = lambda: Quit_Button_Function(root, canvas)
+    Quit_Button['command'] = lambda: Quit_Button_Function(root, canvas, Wait_Timer)
     
     root_updater(root, text_box, canvas)
     root.mainloop()
