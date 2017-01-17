@@ -276,7 +276,7 @@ def consent_window():
     Consent_Button.grid(row=1, column =1, pady=5)
     
     
-    Consent_Button['command'] = lambda: GUI_Main(root_content)
+    Consent_Button['command'] = lambda: Starting_Threads(root_content)
         
     Game_Number_Label = ttk.Label(consent_frame, text='Your Game number is ' + str(Last_Game_Number) + '. Please '
                                   'remember your game id. It will be displayed at the end one more time.')
@@ -414,7 +414,8 @@ def NLP(text_box,canvas, root, Wait_Timer):
 #     Wait_Timer.reset(2.0)
     text_box.configure(background='red')
     text_box.update_idletasks()
-
+    
+#     NLP_Thread(text_box, canvas, root, Wait_Timer)
     os.system('streaming_windows.py')
     text_box.configure(background='green')
     text_box.update_idletasks()
@@ -621,6 +622,10 @@ def Quit_Button_Function_Continue(root, root_quit, canvas, checkbox):
     root_quit.destroy()
 
     consent_window()
+    
+def Starting_Threads(root_consent):
+    GUI_thread = threading.Thread(target=GUI_Main,args=[root_consent])
+    GUI_thread.start()
           
 def GUI_Main(root_consent):
     # Tinker is being defined and the frames are being set up
@@ -628,7 +633,6 @@ def GUI_Main(root_consent):
     # text box and the buttons 
     Wait_Timer = TimerReset(5.0, End_Game_Timer)
 #     Wait_Timer.start()
-    
     
     
     root_consent.destroy()
@@ -705,6 +709,9 @@ def GUI_Main(root_consent):
                                      text='Quit')
     Quit_Button.grid(row=6, column =0, pady=5)
     Quit_Button['command'] = lambda: Quit_Button_Function(root, canvas)
+    
+    NLP_T = threading.Thread(target=NLP,args=[text_box, canvas, root, Wait_Timer])
+#     NLP_T.start()
     
     root_updater(root, text_box, canvas)
     root.mainloop()
