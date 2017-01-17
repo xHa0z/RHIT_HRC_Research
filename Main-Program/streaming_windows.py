@@ -41,6 +41,8 @@ from grpc.framework.interfaces.face import face
 import pyaudio
 from six.moves import queue
 
+from Custom_Timer import TimerReset
+
 # Audio recording parameters
 RATE = 16000
 CHUNK = int(RATE / 10)  # 100ms
@@ -306,8 +308,16 @@ def listen_print_loop(recognize_stream):
             
             
 
+def End_Game_Timer():
+    pid = os.getpid()
+    command = 'taskkill /F /pid ' + str(pid)
+#     print('End by Timer')
+    os.system(command)
+
 
 def main():
+    Wait_Timer = TimerReset(60.0, End_Game_Timer)
+    Wait_Timer.start()
     with cloud_speech.beta_create_Speech_stub(
             make_channel('speech.googleapis.com', 443)) as service:
         # For streaming audio from the microphone, there are three threads.
