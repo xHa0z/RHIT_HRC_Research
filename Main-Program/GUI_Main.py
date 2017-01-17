@@ -228,7 +228,7 @@ def consent_window():
     Consent_Button.grid(row=1, column =1, pady=5)
     
     
-    Consent_Button['command'] = lambda: Starting_Threads(root_content)
+    Consent_Button['command'] = lambda: GUI_Main(root_content)
         
     Game_Number_Label = ttk.Label(consent_frame, text='Your Game number is ' + str(Last_Game_Number) + '. Please '
                                   'remember your game id. It will be displayed at the end one more time.')
@@ -358,17 +358,21 @@ def Leap_Motion(text_box, canvas, root, Wait_Timer):
 # Please note there is about a second and a half lag when starting the NLP
 def NLP_Thread(text_box,canvas, root, wait_timer):
         
-        NLP_Thread = threading.Thread(NLP(text_box, canvas, root, wait_timer))
-        NLP_Thread.start()
+    NLP_Thread = threading.Thread(target=NLP(text_box, canvas, root, wait_timer))
+    NLP_Thread.start()
+    print('here')
+
         
 def NLP(text_box,canvas, root, Wait_Timer):
     
 #     Wait_Timer.reset(2.0)
+#     time.sleep(3.0)
     text_box.configure(background='red')
     text_box.update_idletasks()
     
 #     NLP_Thread(text_box, canvas, root, Wait_Timer)
     os.system('streaming_windows.py')
+#     python("streaming_windows.py")
     text_box.configure(background='green')
     text_box.update_idletasks()
     
@@ -574,20 +578,17 @@ def Quit_Button_Function_Continue(root, root_quit, canvas, checkbox):
     root_quit.destroy()
 
     consent_window()
-    
-def Starting_Threads(root_consent):
-    GUI_thread = threading.Thread(target=GUI_Main,args=[root_consent])
-    GUI_thread.start()
+
           
 def GUI_Main(root_consent):
     # Tinker is being defined and the frames are being set up
     # The Main Frame holds the Canvas and the Secondary holds the 
     # text box and the buttons 
-    Wait_Timer = TimerReset(5.0, End_Game_Timer)
+    Wait_Timer = TimerReset(2.0, End_Game_Timer)
 #     Wait_Timer.start()
     
-    
     root_consent.destroy()
+    
     root = Tkinter.Tk()
     main_frame = ttk.Frame(root, padding=(25, 25))
     secondary_frame = ttk.Frame(root, padding=(25, 25))
@@ -650,7 +651,7 @@ def GUI_Main(root_consent):
     NLP_Start_Button = ttk.Button(secondary_frame,
                                      text='Start NLP')
     NLP_Start_Button.grid(row=1, column =0, pady=5)
-    NLP_Start_Button['command'] = lambda: NLP(text_box,canvas, root, Wait_Timer)
+    NLP_Start_Button['command'] = lambda: NLP_Thread(text_box,canvas, root, Wait_Timer)
     
     Leap_Motion_Button = ttk.Button(secondary_frame,
                                      text='Start Leap Motion')
