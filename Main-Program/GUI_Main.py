@@ -69,6 +69,7 @@ from MainFunctions import getMatrixFromFile, \
 import MainFunctions
 
 from Custom_Timer import TimerReset
+# from streaming_windows import main
 
 import modular_prob_dist_sliding_window as lpp
 from modular_prob_dist_sliding_window import Leap_Matrix
@@ -360,7 +361,7 @@ def NLP_Thread(text_box,canvas, root, wait_timer):
         
     NLP_Thread = threading.Thread(target=NLP(text_box, canvas, root, wait_timer))
     NLP_Thread.start()
-    print('here')
+    
 
         
 def NLP(text_box,canvas, root, Wait_Timer):
@@ -372,7 +373,7 @@ def NLP(text_box,canvas, root, Wait_Timer):
     
 #     NLP_Thread(text_box, canvas, root, Wait_Timer)
     os.system('streaming_windows.py')
-#     python("streaming_windows.py")
+
     text_box.configure(background='green')
     text_box.update_idletasks()
     
