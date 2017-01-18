@@ -69,7 +69,6 @@ from MainFunctions import getMatrixFromFile, \
 import MainFunctions
 
 from Custom_Timer import TimerReset
-# from streaming_windows import main
 
 import modular_prob_dist_sliding_window as lpp
 from modular_prob_dist_sliding_window import Leap_Matrix
@@ -104,9 +103,10 @@ with open('out_file.txt', 'w') as f:
 # with open('Box_Selected.txt', 'w') as f:
 #     f.write('')  
 
+global_root = 0
+global_Root_Quit = 0
+global_root_Game_Check = 0
 
-
-        
 reset_array = np.array([[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]])    
 np.savetxt('Leap_Matrix.txt', reset_array, fmt='%1d') 
 '''
@@ -177,8 +177,7 @@ def grid_create(canvas):
     np.savetxt('game.txt', box_matrix, fmt='%1d')
     
     
-    # Calls the function to create the grid on the canvas
-#     grid(canvas)
+    # This creates the grid system on the canvas
     for k in range(4):
         # Row of Lines
         canvas.create_line(0, k * 150, 600, k * 150, width=3)
@@ -226,23 +225,28 @@ def consent_window():
     # Create a button that says that they consent
     Consent_Button = ttk.Button(consent_frame,
                                      text='Consent to Terms')
-    Consent_Button.grid(row=1, column =1, pady=5)
+    Consent_Button.grid(row=2, column =1, pady=5)
     
     
     Consent_Button['command'] = lambda: GUI_Main(root_content)
         
-    Game_Number_Label = ttk.Label(consent_frame, text='Your Game number is ' + str(Last_Game_Number) + '. Please '
-                                  'remember your game id. It will be displayed at the end one more time.')
-    Game_Number_Label.grid(row=2, column= 1, pady= 5)
+    Game_Number_Label = ttk.Label(consent_frame, text='Your Game number is ' + str(Last_Game_Number) + '.\n\n Please '
+                                  'remember your game id. It will be displayed at the end one more time.', font=(44),
+                                  foreground='red', anchor=N, justify=CENTER)
+    
+    Game_Number_Label.grid(row=1, column= 1, pady= 5)
     
     root_content.mainloop()
         
 
 # this function comes after the consent window and shows a number for the game for the person to remember.
-# (Not yet implemented)
+# 
 def Game_Check(canvas):
     
     root_Game_Check = Tkinter.Tk()
+    
+    global_root_Game_Check = root_Game_Check
+    
     root_Game_Check.wm_title('Block Checker')
     Game_Check_Frame= ttk.Frame(root_Game_Check, padding = (25, 25))
     Game_Check_Frame.grid()
@@ -302,16 +306,6 @@ def Wrong_Block(Root_Game_Check):
 
     Root_Game_Check.destroy()
     box_number = 'Wrong Box! Please start over by click the NLP button then the Leap.'
-    
-# This function is used to create a grid system on the canvas
-def grid(canvas):
-#     for k in range(4):
-#         # Row of Lines
-#         canvas.create_line(0, k * 150, 600, k * 150, width=3)
-#         
-#         # Column of lines
-#         canvas.create_line(k * 150, 0, k * 150, 600, width=3)
-    pass
 
 # To get back to the original state
 def restart(canvas, box):
@@ -365,6 +359,7 @@ def NLP_Thread(text_box,canvas, root, wait_timer):
 
         
 def NLP(text_box,canvas, root, Wait_Timer):
+    
     
 #     Wait_Timer.reset(2.0)
 #     time.sleep(3.0)
@@ -540,6 +535,7 @@ def Quit_Button_Function(root, canvas):
 
     
     Root_Quit = Tkinter.Tk()
+    global_Root_Quit = Root_Quit
     Quit_Frame= ttk.Frame(Root_Quit, padding = (25, 25))
     Quit_Frame.grid()
     
@@ -591,6 +587,7 @@ def GUI_Main(root_consent):
     root_consent.destroy()
     
     root = Tkinter.Tk()
+    global_root = root
     main_frame = ttk.Frame(root, padding=(25, 25))
     secondary_frame = ttk.Frame(root, padding=(25, 25))
     main_frame.grid(row=0, column=0)
@@ -671,11 +668,18 @@ def GUI_Main(root_consent):
     root.mainloop()
 
 def End_Game_Timer():
+    start_countdown_timer = TimerReset(5.0,)
     Root_Timeout = Tkinter.Tk()
     Timeout_Frame= ttk.Frame(Root_Timeout, padding = (25, 25))
     Timeout_Frame.grid()
+    
+    Timeout_Label = ttk.Label(Root_Timeout, text='You have 5 seconds to click continue or the game '
+                              'will be reset!')
+    Timeout_Label.grid(row=0, column=0)
+    
+    Continue_Button['command'] = lambda: Timer_Cancel
 
-
+    
 
 def main():
     
