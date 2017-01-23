@@ -11,7 +11,7 @@ def getMatrixFromFile(fileName):
     fileText = open(fileName + ".txt", "r+")
     for line in fileText.readlines():
         matrixArray.append([])
-        for i in line.split(','):
+        for i in line.split(' '):
             matrixArray[-1].append(int(i))
     fileText.close()
     return matrixArray

@@ -90,7 +90,7 @@ class SampleListener(Leap.Listener):
                 #####################################################################################
                 # 1,2,3,4,5,6,7 feet
 
-                mag = (1 / frame.tools[0].direction[2]) * (-424.6118 - frame.tools[0].tip_position[2])
+                mag = (1 / frame.tools[0].direction[2]) * (-1542 - frame.tools[0].tip_position[2])
                 # print mag
 
                 # compute the position in the table top plane using the magnitude
@@ -230,12 +230,12 @@ def main():
     # Have the sample listener receive events from the controller
     controller.add_listener(listener)
 
-    while True:
-        calculations().average_center()
-        prob = calculations().compute_prob(xo=avg_xpar_sum, yo=avg_ypar_sum - 200, sd=100)
-        print np.round(prob, 6)
-        print
-        print'sum of prob = %f' % prob.sum()
+#     while True:
+    calculations().average_center()
+    prob = calculations().compute_prob(xo=avg_xpar_sum, yo=avg_ypar_sum - 200, sd=100)
+    print np.round(prob, 6)
+    print
+    print'sum of prob = %f' % prob.sum()
 
     controller.remove_listener(listener)
 
