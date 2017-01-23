@@ -7,10 +7,10 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Program Files (x86)\Robai\Cyton Epsilon 1500 Viewer_4.0.0-20150629\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\Robai\Cyton Epsilon 1500 Viewer_4.0.23-20160811-b59\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>C:\Program Files (x86)\Robai\Cyton Epsilon 1500 Viewer_4.0.0-20150629\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Program Files (x86)\Robai\Cyton Epsilon 1500 Viewer_4.0.23-20160811-b59\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>ecRemoteCommand.lib;ecXml.lib;ecTransport.lib;ecStream.lib;ecControl.lib;ecCytonBase.lib;ecConvert.lib;ecConvertSystem.lib;ecCytonHardwareInterface.lib;ecFilterStream.lib;ecForceControl.lib;ecFoundCommon.lib;ecFoundCore.lib;ecFunction.lib;ecGeometry.lib;ecGrasping.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

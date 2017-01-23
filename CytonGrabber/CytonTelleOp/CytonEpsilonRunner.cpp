@@ -4,9 +4,9 @@
 #include <control/ecEndEffectorSet.h>
 #include <controlCore/ecFrameEndEffector.h>
 #include <control/ecManipEndEffectorPlace.h>
-#include <foundCore/ecApplication.h>
-#include <foundCore/ecMacros.h>
-#include <manipulation/ecManipulationActionManager.h>
+//#include <foundCore/ecApplication.h>
+//#include <foundCore/ecMacros.h>
+#include <manipulationDirector/ecManipulationActionManager.h>
 #include <manipulationDirector/ecManipulationScript.h>
 #include <manipulationDirector/ecManipulationDirector.h>
 #include <math.h>
@@ -14,7 +14,7 @@
 #include <xmlReaderWriter/ecXmlObjectReaderWriter.h>
 #include <iostream>
 #include <boost/bind.hpp>
-#include "CytonEpsilonRunner.h"
+//#include "CytonEpsilonRunner.h"
 #include <foundCommon/ecCoordSysXForm.h>
 
 #define FRAME_EE_SET 1
@@ -40,14 +40,15 @@ CytonEpsilonRunner::~CytonEpsilonRunner()
 //connects to the robot itself and returns success
 bool CytonEpsilonRunner::connect() {
 	if (init()) {
+		EcBoolean retVal = EcTrue;
 		printf("established connection to Cyton\n");
-		connected = true;
-		return true;
+		connected = false;
+		return EcTrue;
 	}
 	else {
 		printf("failed to connect to Cyton\n");
-		connected = false;
-		return false;
+		connected = true;
+		return EcFalse;
 	}
 }
 
@@ -65,7 +66,7 @@ bool CytonEpsilonRunner::shutdown() {
 			break;
 		}
 	}
-	if (goToJointHome()) {
+	if (goToJointHome(0,0,0,0,0,0,0)) {
 		Ec::shutdown();
 		connected = false;
 		return true;
@@ -75,9 +76,18 @@ bool CytonEpsilonRunner::shutdown() {
 
 
 //Sets all joints to zero (except gripper) and returns true if successful.
-bool CytonEpsilonRunner::goToJointHome() {
+bool CytonEpsilonRunner::goToJointHome(double r0 = 0, double r1 = 0, double r2 = 0, double r3 = 0, double r4 = 0, double r5 = 0, double r6 = 0) {
 	//sets all joints to 0;
 	EcRealVector jointPosition(7);
+	jointPosition[0] = r0;
+	jointPosition[1] = r1;
+	jointPosition[2] = r2;
+	jointPosition[3] = r3;
+	jointPosition[4] = r4;
+	jointPosition[5] = r5;
+	jointPosition[6] = r6;
+	
+	//jointPosition[0] = 0.01;
 
 	const EcReal angletolerance = .000001;
 
@@ -138,43 +148,44 @@ bool CytonEpsilonRunner::goToJointHome() {
 }
 
 //Tells the robot to move in the specified direction
-bool CytonEpsilonRunner::moveDelta(double dx, double dy, double dz) {
+//bool CytonEpsilonRunner::moveDelta(double dx, double dy, double dz) {
 	
-	EcManipulatorEndEffectorPlacement actualEEPlacement;
-	EcCoordinateSystemTransformation actualCoord;
-	getActualPlacement(actualEEPlacement);
-	actualCoord = actualEEPlacement.offsetTransformations()[0].coordSysXForm();
+//	EcManipulatorEndEffectorPlacement actualEEPlacement;
+//	EcCoordinateSystemTransformation actualCoord;
+//	getActualPlacement(actualEEPlacement);
+//	actualCoord = actualEEPlacement.offsetTransformations()[0].coordSysXForm();
 
-	EcVector trans = actualCoord.translation();
-	double x = trans.x();
-	double y = trans.y();
-	double z = trans.z();
-
-
-	x += dx;
-	y += dy;
-	z += dz;
-
-	std::cout << "move to X:" << x << " Y:" << y << " Z:" << z << std::endl;
-
-	EcCoordinateSystemTransformation pose;
-	pose.setTranslationX(x);
-	pose.setTranslationY(y);
-	pose.setTranslationZ(z);
+//	EcVector trans = actualCoord.translation();
+//	double x = trans.x();
+//	double y = trans.y();
+//	double z = trans.z();
 
 
-	EcOrientation orientation;
-	orientation.setFrom123Euler(0, 0, 0);
-	pose.setOrientation(orientation);
-	setEndEffectorSet(0); //point end effector set
+//	x += dx;
+//	y += dy;
+//	z += dz;
 
-	EcEndEffectorPlacement desiredPlacement(pose);
+//	std::cout << "move to X:" << x << " Y:" << y << " Z:" << z << std::endl;
 
-	setDesiredPlacement(desiredPlacement, 0, 0);
+//	EcCoordinateSystemTransformation pose;
+//	pose.setTranslationX(x);
+//	pose.setTranslationY(y);
+//	pose.setTranslationZ(z);
 
 
-	return true;
-}
+	//EcOrientation orientation;
+//	EcOrientation orient;
+//	orient.setFrom123Euler(0, 0, 0);
+//	pose.setOrientation(orient);
+//	setEndEffectorSet(0); //point end effector set
+
+//	EcEndEffectorPlacement desiredPlacement(pose);
+
+//	setDesiredPlacement(desiredPlacement, 0, 0);
+
+
+//	return true;
+//}
 
 //Tells the robot to move in the specified direction
 bool CytonEpsilonRunner::moveTo(double x, double y, double z, int method) {

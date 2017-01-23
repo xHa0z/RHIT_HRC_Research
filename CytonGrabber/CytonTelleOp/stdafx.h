@@ -22,7 +22,7 @@
 #include <foundCore/ecConstants.h>
 #include <foundCore/ecMacros.h>
 #include <foundCore/ecTypes.h>
-#include <manipulation/ecManipulationActionManager.h>
+#include <manipulationDirector/ecManipulationActionManager.h>
 #include <manipulationDirector/ecManipulationScript.h>
 #include <remoteCommand/ecRemoteCommand.h>
 

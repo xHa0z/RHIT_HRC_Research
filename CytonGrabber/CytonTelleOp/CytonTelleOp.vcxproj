@@ -121,12 +121,15 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\Robai\Cyton Epsilon 1500 Viewer_4.0.23-20160811-b59\include;C:\Users\sunz\Desktop\Cyton Epsilon 1500 Viewer_4.0.23-20160811-b59\external\boost-20160406-msvc2013-i386\boost_1_60_0\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\Users\sunz\Desktop\Cyton Epsilon 1500 Viewer_4.0.23-20160811-b59\lib;C:\Users\sunz\Desktop\Cyton Epsilon 1500 Viewer_4.0.23-20160811-b59\external\boost-20160406-msvc2013-i386\boost_1_60_0\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ecRemoteCommand.lib;ecXml.lib;ecTransport.lib;ecStream.lib;ecControl.lib;ecCytonBase.lib;ecConvert.lib;ecConvertSystem.lib;ecCytonHardwareInterface.lib;ecFilterStream.lib;ecForceControl.lib;ecFoundCommon.lib;ecFoundCore.lib;ecFunction.lib;ecGeometry.lib;ecGrasping.lib;ecboost_system-mt.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
