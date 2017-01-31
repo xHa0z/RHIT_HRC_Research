@@ -60,7 +60,7 @@ from grpc.framework.interfaces.face import face
 import pyaudio
 from six.moves import queue
 
-
+from mongodb_functions import *
 
 from MainFunctions import getMatrixFromFile, \
                           multiplyMatrices, \
@@ -87,6 +87,7 @@ Timer_Check = 0
 
 with open('Game_Number_Counter.txt', 'r') as f:
         Last_Game_Number = f.read()
+        insert_game(Last_Game_Number)
         
 Last_Game_Number = int(Last_Game_Number)
 # Test file passes information between Cyton and Main program
@@ -555,7 +556,7 @@ def Quit_Button_Function(root, canvas):
                                      text='Quit')
     Quit_Button_Second.grid(row=2, column =0, pady=5, padx=5)
     
-    Quit_Button_Second['command'] = lambda: Quit_Button_Function_Continue(root, Root_Quit, canvas, Quit_Button_Second)
+    Quit_Button_Second['command'] = lambda: Quit_Button_Function_Continue(root, Root_Quit, canvas, Delete_CheckBox_Check)
     
 def Quit_Button_Function_Continue(root, root_quit, canvas, checkbox):
     global Last_Game_Number
@@ -569,9 +570,9 @@ def Quit_Button_Function_Continue(root, root_quit, canvas, checkbox):
     del box[:]
     
     boxes_removed = 0
-    
-    if checkbox == 1:
-        pass
+
+    if checkbox.get() == 0:
+        delete_game(str(Last_Game_Number - 1))
     
     root.destroy()
     root_quit.destroy()
