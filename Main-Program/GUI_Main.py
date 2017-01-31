@@ -83,6 +83,7 @@ boxes_removed = 0
 read_box_selected = 0
 previous_box = -1
 Box_Selected = str('Nothing')
+Timer_Check = 0
 
 with open('Game_Number_Counter.txt', 'r') as f:
         Last_Game_Number = f.read()
@@ -351,12 +352,11 @@ def Leap_Motion(text_box, canvas, root, Wait_Timer):
     
 # This function is to change the text box color to red when the NLP is running then green when it is done
 # Please note there is about a second and a half lag when starting the NLP
-def NLP_Thread(text_box,canvas, root, wait_timer):
-        
-    NLP_Thread = threading.Thread(target=NLP(text_box, canvas, root, wait_timer))
-    NLP_Thread.start()
-    
-
+# def NLP_Thread(text_box,canvas, root, wait_timer):
+#         
+#     NLP_Thread = threading.Thread(target=NLP(text_box, canvas, root, wait_timer))
+#     NLP_Thread.start()
+#     
         
 def NLP(text_box,canvas, root, Wait_Timer):
     
@@ -524,6 +524,8 @@ def root_updater(root, text_box, canvas):
                     'Robot Status: ' + str(Robot_Status) + '\n' +\
                     'NLP Speech: ' + str(NLP_Speech) + '\n' + 'Leap Motion: ' \
                     + str(controller_active))
+    if Timer_Check == 1:
+        text_box.insert(1.0, 'You have 5 seconds to click continue to stop the game from restarting.')
     text_box.configure(state='disabled')
     # update the GUI
     text_box.update_idletasks()
@@ -582,7 +584,7 @@ def GUI_Main(root_consent):
     # The Main Frame holds the Canvas and the Secondary holds the 
     # text box and the buttons 
     Wait_Timer = TimerReset(2.0, End_Game_Timer)
-#     Wait_Timer.start()
+    Wait_Timer.start()
     
     root_consent.destroy()
     
@@ -649,7 +651,7 @@ def GUI_Main(root_consent):
     NLP_Start_Button = ttk.Button(secondary_frame,
                                      text='Start NLP')
     NLP_Start_Button.grid(row=1, column =0, pady=5)
-    NLP_Start_Button['command'] = lambda: NLP_Thread(text_box,canvas, root, Wait_Timer)
+    NLP_Start_Button['command'] = lambda: NLP(text_box,canvas, root, Wait_Timer)
     
     Leap_Motion_Button = ttk.Button(secondary_frame,
                                      text='Start Leap Motion')
@@ -668,18 +670,25 @@ def GUI_Main(root_consent):
     root.mainloop()
 
 def End_Game_Timer():
-    start_countdown_timer = TimerReset(5.0,)
-    Root_Timeout = Tkinter.Tk()
-    Timeout_Frame= ttk.Frame(Root_Timeout, padding = (25, 25))
-    Timeout_Frame.grid()
+#     start_countdown_timer = TimerReset(5.0,)
+#     Root_Timeout = Tkinter.Tk()
+#     Timeout_Frame= ttk.Frame(Root_Timeout, padding = (25, 25))
+#     Timeout_Frame.grid()
+#     
+#     Timeout_Label = ttk.Label(Timeout_Frame, text='You have 5 seconds to click continue or the game '
+#                               'will be reset!')
+#     Timeout_Label.grid(row=0, column=0, padx = 5, pady = 5)
+#     
+#     Continue_Button = ttk.Button(Timeout_Frame,
+#                                  text = "Continue")
+#     Continue_Button.grid(row = 1, column = 1, padx = 5, pady = 5)
+#     Continue_Button['command'] = lambda: Timer_Cancel(Root_Timeout)
+    Timer_Check = 1
     
-    Timeout_Label = ttk.Label(Root_Timeout, text='You have 5 seconds to click continue or the game '
-                              'will be reset!')
-    Timeout_Label.grid(row=0, column=0)
-    
-    Continue_Button['command'] = lambda: Timer_Cancel
 
-    
+# def Timer_Cancel(Root_Timeout):
+# #     Wait_Timer.reset()
+#     Root_Timeout.destroy()    
 
 def main():
     
