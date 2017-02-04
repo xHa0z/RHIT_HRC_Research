@@ -42,6 +42,9 @@ import pyaudio
 from six.moves import queue
 
 from Custom_Timer import TimerReset
+from mongodb_functions import *
+import pymongo
+
 
 # Audio recording parameters
 RATE = 16000
@@ -59,8 +62,8 @@ SPEECH_SCOPE = 'https://www.googleapis.com/auth/cloud-platform'
 # game board, 0 - nothing, 1 - red, 2 - green, 3 - blue
 game = np.loadtxt('game.txt', dtype = 'int')
 
-
-
+game_num = sys.argv[1]
+print (game_num)
 
 
 def make_channel(host, port):
@@ -191,7 +194,7 @@ def listen_print_loop(recognize_stream):
     # get current pid
     print (os.getpid())
     # get current timestamps and convert to string
-    current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    current_time = datetime.now().strftime("%Y%m%d-%H%M%S")
     cwd = os.getcwd()
     out_path = cwd+'/log/' + current_time + '/'
 
@@ -220,6 +223,7 @@ def listen_print_loop(recognize_stream):
             # save each captured voice command
             filename = out_path+'log_' + str(i) + '.txt'
 #             display_msg = 'NLP_Speech.txt'
+            insert_transcript(game_num, result.alternatives[0].transcript)
             # print(result.alternatives[0].transcript)
             log = open(filename, 'w')
 #             msg = open(display_msg,'w')
@@ -262,7 +266,7 @@ def listen_print_loop(recognize_stream):
                 temp_game[temp_game == 3] = 1
 
                 
-
+#             insert_nlp_matrix(game_num, str(temp_game))
             np.savetxt('out_file.txt', temp_game, fmt='%1d')
             
 
@@ -276,7 +280,7 @@ def listen_print_loop(recognize_stream):
                for result in resp.results
                for alt in result.alternatives):
 
-
+            
             pid = os.getpid()
             command = 'taskkill /F /pid ' + str(pid)
 
@@ -287,6 +291,7 @@ def listen_print_loop(recognize_stream):
             # check if the output file generated
             if not os.path.isfile('out_file.txt'):
                 np.savetxt('out_file.txt', err_game, fmt='%1d')
+                insert_nlp_matrix(game_num, str(err_game))
                 os.system(command)
 
 
@@ -297,13 +302,16 @@ def listen_print_loop(recognize_stream):
             if np.array_equal(out_check, current_game) or np.array_equal(out_check, multi_commands):
 
                 np.savetxt('out_file.txt', err_game, fmt='%1d')
+                insert_nlp_matrix(game_num, str(err_game) )
             
             
             src = out_path+'log_' + str(0) + '.txt'  
             print (src)
             dst = cwd+'/NLP_Speech.txt'
             copyfile(src, dst)
-            
+            insert_nlp_matrix(game_num, str(out_check))
+           
+        
             os.system(command)
             
             
@@ -312,6 +320,7 @@ def End_Game_Timer():
     pid = os.getpid()
     command = 'taskkill /F /pid ' + str(pid)
 #     print('End by Timer')
+    
     os.system(command)
 
 
@@ -335,6 +344,7 @@ def main():
             # Now, put the transcription responses to use.
             try:
                 listen_print_loop(recognize_stream)
+             
 
                 recognize_stream.cancel()
             except face.CancellationError:

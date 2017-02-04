@@ -51,6 +51,8 @@ from threading import Thread, Event, Timer
 import random
 from random import *
 
+import subprocess
+
 
 from google.cloud import credentials
 from google.cloud.speech.v1beta1 import cloud_speech_pb2 as cloud_speech
@@ -71,8 +73,9 @@ import MainFunctions
 from Custom_Timer import TimerReset
 
 import modular_prob_dist_sliding_window as lpp
-from modular_prob_dist_sliding_window import Leap_Matrix
+# from modular_prob_dist_sliding_window import Leap_Matrix
 from LeapPython import Controller_is_connected_get
+
 
 # Array to hold all of the boxes in
 box = []
@@ -88,7 +91,7 @@ Timer_Check = 0
 with open('Game_Number_Counter.txt', 'r') as f:
         Last_Game_Number = f.read()
         insert_game(Last_Game_Number)
-        
+
 Last_Game_Number = int(Last_Game_Number)
 # Test file passes information between Cyton and Main program
 with open('test.txt', 'w') as f:
@@ -99,8 +102,8 @@ with open('NLP_Speech.txt', 'w') as f:
     f.write('Nothing')
     
 # Test file passes information between Cyton and Main program
-with open('out_file.txt', 'w') as f:
-    f.write(str(0))
+# with open('out_file.txt', 'w') as f:
+#     f.write(str(0))
  
 # with open('Box_Selected.txt', 'w') as f:
 #     f.write('')  
@@ -111,6 +114,7 @@ global_root_Game_Check = 0
 
 reset_array = np.array([[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]])    
 np.savetxt('Leap_Matrix.txt', reset_array, fmt='%1d') 
+np.savetxt('out_file.txt', reset_array, fmt='%1d') 
 '''
 Begins the game and board. Also adds number to the boxes.
 Please note that the boxes are hard coded to be a set pattern
@@ -176,6 +180,7 @@ def grid_create(canvas):
     # This reshapes the two d array of boxes to matrix and saves it to the 
     # game text file.
     box_matrix = np.reshape(box_new, (4,4))
+    insert_game_matrix(str(Last_Game_Number), str(box_matrix))
     np.savetxt('game.txt', box_matrix, fmt='%1d')
     
     
@@ -188,7 +193,7 @@ def grid_create(canvas):
         canvas.create_line(k * 150, 0, k * 150, 600, width=3)
   
   
-def consent_window():
+def consent_window(root):
     # Create the consent frame each time the game is restarted to give their consent
     # to be recorded
     root_content = Tkinter.Tk()
@@ -196,6 +201,8 @@ def consent_window():
     consent_frame = ttk.Frame(root_content, padding = (25, 25))
     consent_frame.grid()
     
+    if root != None:
+        root.destroy()
     # This is the consent box where the consent form is shown 
     consent_box = Text(consent_frame, width=50, height=15, background='white', wrap=WORD)
     consent_scroll = Scrollbar(consent_frame)
@@ -274,8 +281,9 @@ def Game_Check(canvas):
 
 # This function writes to the robot file to move the robot if it is correct block picked
 def Correct_Block(Root_Game_Check, canvas):
-    global previous_box
+    global previous_box, boxes_removed
     
+    insert_button_selection(str(Last_Game_Number), 1)
     with open('test.txt', 'w') as f:
         f.write(str(Box_Selected))
         
@@ -306,6 +314,7 @@ def Correct_Block(Root_Game_Check, canvas):
 # This function does nothing and just tells the user to start over.
 def Wrong_Block(Root_Game_Check):
 
+    insert_button_selection(str(Last_Game_Number), 0)
     Root_Game_Check.destroy()
     box_number = 'Wrong Box! Please start over by click the NLP button then the Leap.'
 
@@ -318,15 +327,19 @@ def restart(canvas, box):
     
 
 # After winning the game the restart button calls this function to start the game over
-def Restart_Game(root_win, root, win_frame,text_box, canvas, box):
+def Restart_Game(root_win, root, win_frame,text_box, canvas):
 #     restart(canvas, box)
+    global box, Last_Game_Number
+    
     for k in range(16):
         canvas.delete(box[k])
 
     del box[:]
     
     root_updater(root, text_box, canvas)
-    root_win.destroy()
+    if root_win != None:
+        root_win.destroy()
+        
     root.destroy()
     
     Last_Game_Number += 1
@@ -334,7 +347,7 @@ def Restart_Game(root_win, root, win_frame,text_box, canvas, box):
         f.write(str(Last_Game_Number))
         
 
-    consent_window()
+    consent_window(None)
     
 # This function is to change the text box color to red for when the Leap Motion Starts
 def Leap_Motion(text_box, canvas, root, Wait_Timer):
@@ -342,12 +355,13 @@ def Leap_Motion(text_box, canvas, root, Wait_Timer):
     text_box.configure(background='red')
     text_box.update_idletasks()
     os.system('modular_prob_dist_sliding_window.py')
+#     leap_process = subprocess.Popen("modular_prob_dist_sliding_window.py", shell=True)
+#     while leap_process.poll() == None:
+#         pass
     text_box.configure(background='green')
     text_box.update_idletasks()
     
     root_updater(root, text_box, canvas)
-    
-    print('Leap Matrix =' + str(Leap_Matrix))
     
     Matrix(text_box,canvas, root)
     
@@ -364,12 +378,16 @@ def NLP(text_box,canvas, root, Wait_Timer):
     
 #     Wait_Timer.reset(2.0)
 #     time.sleep(3.0)
-    text_box.configure(background='red')
-    text_box.update_idletasks()
     
 #     NLP_Thread(text_box, canvas, root, Wait_Timer)
-    os.system('streaming_windows.py')
+    argv = 'streaming_windows.py ' + str(Last_Game_Number)
+    nlp_process = subprocess.Popen(argv, shell=True)
 
+    time.sleep(2)
+    text_box.configure(background='red')
+    text_box.update_idletasks()
+    while nlp_process.poll() == None:
+        pass
     text_box.configure(background='green')
     text_box.update_idletasks()
     
@@ -394,26 +412,29 @@ def Matrix_Multiplier():
     global previous_box, Box_Selected
     
     # stopStatement = false
-    NLPTextFileName = "out_file"
+    NLPTextFileName = "out_file.txt"
     NLPMatrixInit = "0,0,0,0\n0,0,0,0\n0,0,0,0\n0,0,0,0"
     
     # while stopStatement == false:
     NLPMatrix = getMatrixFromFile(NLPTextFileName)
-    Leap_Matrix = getMatrixFromFile('Leap_Matrix')
+    Leap_Matrix = getMatrixFromFile('Leap_Matrix.txt')
+    insert_leap_motion_result(str(Last_Game_Number), str(Leap_Matrix))
     
     bool = checkMatrix(NLPMatrix)
     if bool == False:
         return str("Didn't catch that.")
     probabilityMatrix, maxNumberIndex = multiplyMatrices(Leap_Matrix, NLPMatrix)
-    Print('Leap_Matrix = ' + str(Leap_Matrix))
-    if probabilityMatrix == [[0]]:
-        return
-
-    i = maxNumberIndex[0] 
-    k = maxNumberIndex[1] 
-    x = i * 4 + k
-           
-    Box_Selected = x
+    insert_decision_matrix(str(Last_Game_Number),str(probabilityMatrix))
+    print('Leap_Matrix = ' + str(Leap_Matrix))
+#     if probabilityMatrix == [[0]]:
+#         return
+# 
+#     i = maxNumberIndex[0] 
+#     k = maxNumberIndex[1] 
+#     x = i * 4 + k
+#            
+    Box_Selected = maxNumberIndex
+    insert_decision_index(str(Last_Game_Number), str(maxNumberIndex))
     print(str(Box_Selected))
 #     if box[x] != 0:
 #         with open('test.txt', 'w') as f:
@@ -430,7 +451,7 @@ def Matrix_Multiplier():
 # This is the temporary fix to update the gui after clicking the buttons would like to have it 
 # update automatically which requires multithreading
 def root_updater(root, text_box, canvas):
-    global boxes_removed, read_box_selected, previous_box, Box_Selected
+    global boxes_removed, read_box_selected, previous_box, Box_Selected, Timer_Check
     
     text_box.configure(state='normal')
     text_box.delete('1.0', END)
@@ -486,7 +507,7 @@ def root_updater(root, text_box, canvas):
     # if the NLP didn't pick up the key words  
     with open('NLP_Speech.txt', 'r') as f:
         # NLP send back a matrix filled with all -1 to indicated that it didn't understand
-        if MainFunctions.checkMatrix(getMatrixFromFile('out_file')) == False:
+        if MainFunctions.checkMatrix(getMatrixFromFile('out_file.txt')) == False:
             NLP_Speech = "Didn't catch that. Please click the NLP button again and try again."
         else:
             NLP_Speech = f.readline() 
@@ -518,15 +539,17 @@ def root_updater(root, text_box, canvas):
         restart_button = ttk.Button(win_frame,
                                     text='Restart Game')
         restart_button.grid(row=7, column=0, sticky=W,pady=5)
-        restart_button['command'] = lambda: Restart_Game(root_win, root, win_frame,text_box, canvas, box)
+        restart_button['command'] = lambda: Restart_Game(root_win, root, win_frame,text_box, canvas)
         
     # What is put into the text box
     text_box.insert(1.0, 'Box Number Selected: ' + str(box_number) + '\n' + \
                     'Robot Status: ' + str(Robot_Status) + '\n' +\
                     'NLP Speech: ' + str(NLP_Speech) + '\n' + 'Leap Motion: ' \
                     + str(controller_active))
-    if Timer_Check == 1:
-        text_box.insert(1.0, 'You have 5 seconds to click continue to stop the game from restarting.')
+#     if Timer_Check == 1:
+#         text_box.configure(background = 'blue')
+#         text_box.insert(1.0, 'You have 5 seconds to click continue to stop the game from restarting.')
+#     text_box.configure(background = 'yellow')
     text_box.configure(state='disabled')
     # update the GUI
     text_box.update_idletasks()
@@ -573,24 +596,26 @@ def Quit_Button_Function_Continue(root, root_quit, canvas, checkbox):
 
     if checkbox.get() == 0:
         delete_game(str(Last_Game_Number - 1))
+#     elif checkbox == 0:
+#         delete_game(str(Last_Game_Number - 1))
     
     root.destroy()
-    root_quit.destroy()
+    if root_quit != 0:
+        root_quit.destroy()
 
-    consent_window()
+    consent_window(None)
 
           
 def GUI_Main(root_consent):
     # Tinker is being defined and the frames are being set up
     # The Main Frame holds the Canvas and the Secondary holds the 
     # text box and the buttons 
-    Wait_Timer = TimerReset(2.0, End_Game_Timer)
-    Wait_Timer.start()
+#     subprocess.Popen('')
     
     root_consent.destroy()
     
     root = Tkinter.Tk()
-    global_root = root
+#     root_consent.hide_window()
     main_frame = ttk.Frame(root, padding=(25, 25))
     secondary_frame = ttk.Frame(root, padding=(25, 25))
     main_frame.grid(row=0, column=0)
@@ -644,6 +669,9 @@ def GUI_Main(root_consent):
     instruction_label = ttk.Label(secondary_frame, text='Instructions: ')
     instruction_label.grid(row=4, column =0, sticky = W)
     
+    Wait_Timer = TimerReset(1.0, End_Game_Timer, [text_box, root, canvas])
+#     Wait_Timer.start()
+    
     # The buttons for start, delete, and reset. The delete button
     # deletes the box number that you typed in the entry box.
     # Start begins the game with a clean board. Reset resets the
@@ -661,39 +689,55 @@ def GUI_Main(root_consent):
     
     Quit_Button = ttk.Button(secondary_frame,
                                      text='Quit')
-    Quit_Button.grid(row=6, column =0, pady=5)
+    Quit_Button.grid(row=6, column =0, pady=5, sticky = W)
     Quit_Button['command'] = lambda: Quit_Button_Function(root, canvas)
     
-    NLP_T = threading.Thread(target=NLP,args=[text_box, canvas, root, Wait_Timer])
-#     NLP_T.start()
+    Continue_Button = ttk.Button(secondary_frame,
+                                     text='Continue')
+    Continue_Button.grid(row=6, column =0, pady=5, sticky=E)
+    Continue_Button['command'] = lambda: Timer_Cancel(Wait_Timer, text_box, root, canvas)
     
     root_updater(root, text_box, canvas)
+    
     root.mainloop()
 
-def End_Game_Timer():
-#     start_countdown_timer = TimerReset(5.0,)
-#     Root_Timeout = Tkinter.Tk()
-#     Timeout_Frame= ttk.Frame(Root_Timeout, padding = (25, 25))
-#     Timeout_Frame.grid()
-#     
-#     Timeout_Label = ttk.Label(Timeout_Frame, text='You have 5 seconds to click continue or the game '
-#                               'will be reset!')
-#     Timeout_Label.grid(row=0, column=0, padx = 5, pady = 5)
-#     
-#     Continue_Button = ttk.Button(Timeout_Frame,
-#                                  text = "Continue")
-#     Continue_Button.grid(row = 1, column = 1, padx = 5, pady = 5)
-#     Continue_Button['command'] = lambda: Timer_Cancel(Root_Timeout)
-    Timer_Check = 1
-    
 
-# def Timer_Cancel(Root_Timeout):
-# #     Wait_Timer.reset()
-#     Root_Timeout.destroy()    
+def End_Game_Timer(text_box, root, canvas):
+    
+#     start_countdown_timer = TimerReset(1.0, Force_Quit, [root, canvas, text_box])
+#     start_countdown_timer.start()
+    
+    text_box.configure(background = 'yellow')
+    text_box.configure(state = 'normal')
+    text_box.delete(1.0, END)
+    text_box.insert(1.0, 'You have 5 seconds to click continue to stop the game from \nrestarting.')
+    text_box.configure(state = 'disabled')
+    text_box.update_idletasks()
+
+def Timer_Cancel(Wait_Timer, text_box, root, canvas):
+    
+    
+    text_box.configure(background = 'Green')
+    root_updater(root, text_box, canvas)
+    
+    Wait_Timer = TimerReset(5.0, End_Game_Timer, [text_box])
+    Wait_Timer.start()
+    
+def Force_Quit(root, canvas, text_box):
+#     Restart_Game(None, root, None,text_box, canvas)
+    global Last_Game_Number
+    root.destroy()
+     
+    Last_Game_Number += 1
+    with open('Game_Number_Counter.txt', 'w') as f:
+        f.write(str(Last_Game_Number))
+         
+    time.sleep(3)
+    subprocess.Popen(consent_window(root), shell=True)
 
 def main():
     
-    consent_window()
+    consent_window(None)
     
 
 if __name__ == '__main__':

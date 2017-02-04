@@ -23,10 +23,11 @@ import matplotlib
 import matplotlib.pyplot as plt
 import pylab
 from matplotlib.pyplot import pause
-
+from mongodb_functions import *
 global start_sensor
 
 array_length = 120
+
 
 # Creates the Circular Arrays for use later on in Code(Gish)
 xpar = circular_array.CircularArray(array_length)
@@ -39,7 +40,7 @@ filename_XZ = "Leap_Coordinates_XZ.txt"  # Stored data for x,z
 
 count = 0
 
-Leap_Matrix = 0
+# Leap_Matrix = 0
 
 
 # Opens the File to write and clear the data out of the text file(Gish)
@@ -249,7 +250,11 @@ class calculations(object):
                 j0 = 75 * j
                 prob[i, j] = pdf[i0:i0 + 75, j0:j0 + 75].sum()
 
-        Leap_Matrix = prob
+#         Leap_Matrix = prob
+            
+        with open('Game_Number_Counter.txt', 'r') as f:
+            game_num = f.read()
+        insert_leap_motion_raw(game_num, str(prob))
         return prob
 
 def main():
@@ -294,10 +299,12 @@ def main():
     print'sum of prob = %f' % prob.sum()
 
     """
-
+    prob = prob * 1000
+    np.savetxt('Leap_Matrix.txt', prob, fmt='%10e')
 
     controller.remove_listener(listener)
     
+   
     return prob
 
 
