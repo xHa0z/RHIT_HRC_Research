@@ -52,7 +52,7 @@ import random
 from random import *
 
 import subprocess
-
+from subprocess import Popen, CREATE_NEW_CONSOLE
 
 from google.cloud import credentials
 from google.cloud.speech.v1beta1 import cloud_speech_pb2 as cloud_speech
@@ -76,7 +76,9 @@ import modular_prob_dist_sliding_window as lpp
 # from modular_prob_dist_sliding_window import Leap_Matrix
 from LeapPython import Controller_is_connected_get
 
-
+# Load all the constants and global variables 
+###########################################################################################
+###########################################################################################
 # Array to hold all of the boxes in
 box = []
 box_new = [0]*16
@@ -88,9 +90,28 @@ previous_box = -1
 Box_Selected = str('Nothing')
 Timer_Check = 0
 
+# Directory to store 
+video_dir = 'C:/database/video/'
+video_dir_db = '/database/video/'
+video_dst = ''
+# create the dirctory if not exists
+if not os.path.exists('C:/database/video/'): 
+    os.makedirs('C:/database/video/')
+    
+ffmpeg_cmd = ('ffmpeg -f dshow -video_size 1280x720 -framerate 24 -vcodec mjpeg \
+                -i video="Microsoft LifeCam Studio":audio="Desktop Microphone (2- Studio -" ')
+
+
+
 with open('Game_Number_Counter.txt', 'r') as f:
         Last_Game_Number = f.read()
+        video_dst = video_dir + Last_Game_Number + '.avi'
+        video_dst_db = video_dir_db + Last_Game_Number
+        if os.path.exists(video_dst):
+            os.remove(video_dst)
+            print ('old video will be replaced')
         insert_game(Last_Game_Number)
+        insert_video_dir(Last_Game_Number, video_dst)
 
 Last_Game_Number = int(Last_Game_Number)
 # Test file passes information between Cyton and Main program
@@ -108,6 +129,8 @@ with open('NLP_Speech.txt', 'w') as f:
 # with open('Box_Selected.txt', 'w') as f:
 #     f.write('')  
 
+
+
 global_root = 0
 global_Root_Quit = 0
 global_root_Game_Check = 0
@@ -115,6 +138,11 @@ global_root_Game_Check = 0
 reset_array = np.array([[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]])    
 np.savetxt('Leap_Matrix.txt', reset_array, fmt='%1d') 
 np.savetxt('out_file.txt', reset_array, fmt='%1d') 
+
+##########################################################################################
+##########################################################################################
+
+
 '''
 Begins the game and board. Also adds number to the boxes.
 Please note that the boxes are hard coded to be a set pattern
@@ -595,13 +623,16 @@ def Quit_Button_Function_Continue(root, root_quit, canvas, checkbox):
     boxes_removed = 0
 
     if checkbox.get() == 0:
+        subprocess.Popen('taskkill /im ffmpeg.exe /t /f')
         delete_game(str(Last_Game_Number - 1))
+        os.remove(video_dst)
 #     elif checkbox == 0:
 #         delete_game(str(Last_Game_Number - 1))
     
     root.destroy()
     if root_quit != 0:
         root_quit.destroy()
+        subprocess.Popen('taskkill /im ffmpeg.exe /t /f')
 
     consent_window(None)
 
@@ -611,6 +642,10 @@ def GUI_Main(root_consent):
     # The Main Frame holds the Canvas and the Secondary holds the 
     # text box and the buttons 
 #     subprocess.Popen('')
+    
+    # start video recording
+    video_rec_cmd = ffmpeg_cmd + video_dst
+    subprocess.Popen(video_rec_cmd, shell=True, creationflags=CREATE_NEW_CONSOLE)
     
     root_consent.destroy()
     
