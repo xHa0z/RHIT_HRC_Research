@@ -24,7 +24,9 @@ import matplotlib.pyplot as plt
 import pylab
 from matplotlib.pyplot import pause
 from mongodb_functions import *
+from Tkconstants import CURRENT
 global start_sensor
+
 
 array_length = 120
 
@@ -41,6 +43,7 @@ filename_XZ = "Leap_Coordinates_XZ.txt"  # Stored data for x,z
 count = 0
 
 # Leap_Matrix = 0
+leap_status = "standby"
 
 
 # Opens the File to write and clear the data out of the text file(Gish)
@@ -52,6 +55,7 @@ with open(filename_XZ, 'w') as f:
 
 # Creates a leap listener Object
 class SampleListener(Leap.Listener):
+    global leap_status
     finger_names = ['Thumb', 'Index', 'Middle', 'Ring', 'Pinky']
     bone_names = ['Metacarpal', 'Proximal', 'Intermediate', 'Distal']
     state_names = ['STATE_INVALID', 'STATE_START', 'STATE_UPDATE', 'STATE_END']
@@ -78,7 +82,8 @@ class SampleListener(Leap.Listener):
     # This is done over and over (ryder)
     def on_frame(self, controller):
 
-        global xpar, ypar, zpar, count, avg_xpar_sum , avg_ypar_sum, start_sensor
+        global xpar, ypar, zpar, count, avg_xpar_sum , avg_ypar_sum, start_sensor, leap_status
+
 
         # time.sleep(0.5)  # (ryder)
 
@@ -102,7 +107,7 @@ class SampleListener(Leap.Listener):
                 #####################################################################################
                 # 1,2,3,4,5,6,7 feet
 
-                mag = (1 / frame.tools[0].direction[2]) * (-1524 - frame.tools[0].tip_position[2])
+                mag = (1 / frame.tools[0].direction[2]) * (-1143 - frame.tools[0].tip_position[2])
                 # print mag
 
                 # compute the position in the table top plane using the magnitude
@@ -115,19 +120,21 @@ class SampleListener(Leap.Listener):
 
                 start_sensor = False
 
-                if xpos < 225 and xpos > -225:
+                if xpos < -200 and xpos > -630:
                     start_sensor = True
                     xpar.add_value(xpos)
                 else:
                     print('Please Point @ a block on the grid')
-                    time.sleep(1)
+                    leap_status = 'Please Point @ a block on the grid'
+#                     time.sleep(1)
 
-                if ypos < 375 and ypos > -75:
+                if ypos < 450 and ypos > -10:
                     start_sensor = True
                     ypar.add_value(ypos)
                 else:
                     print('Please Point @ a block on the grid')
-                    time.sleep(1)
+                    leap_status = 'Please Point @ a block on the grid'
+#                     time.sleep(1)
 
 
 
@@ -158,7 +165,7 @@ class SampleListener(Leap.Listener):
                 ################# This is for the paper on the table ###########################
                 # compute the distance along the tool direction from the tip position to the table top
                 # the -11 is due to the fact that the origin in ~11 mm above the table top
-                mag = (1 / frame.tools[0].direction[1]) * (-11 - frame.tools[0].tip_position[1])
+                mag = (1 / frame.tools[0].direction[1]) * (39.8 - frame.tools[0].tip_position[1])
                 # print mag
 
                 # compute the position in the table top plane using the magnitude
@@ -199,6 +206,7 @@ class SampleListener(Leap.Listener):
             count = count + 1
             if count == 30:
                 print "no tool detected"
+                leap_status = 'no tool detected'
                 count = 0
 
 
@@ -229,15 +237,15 @@ class calculations(object):
         avg_ypar_sum = ypar.averager_function()
 
         return avg_ypar_sum
-    def compute_prob(self, xo=0, yo=0, sd=150):
+    def compute_prob(self, xo=-407.06, yo=215.24, sd=150):
         counter = 0
         yo = -yo
-        sd_left = (-150 - xo) / sd
-        sd_right = (150 - xo) / sd
-        sd_bottom = (0 - yo) / sd
-        sd_top = (300 - yo) / sd
-        x = np.linspace(-150, 150, 301)
-        y = np.linspace(0, 300, 301)
+        sd_left = (-571.5 - xo) / sd
+        sd_right = (-241.3 - xo) / sd
+        sd_bottom = (50.8 - yo) / sd
+        sd_top = (381 - yo) / sd
+        x = np.linspace(-571.5, -241.3, 330.2)
+        y = np.linspace(50.8, 381, 330.2)
         xx, yy = np.meshgrid(x, y)
         xx_pdf = truncnorm.pdf(xx, sd_left, sd_right, loc=xo, scale=sd)
         yy_pdf = truncnorm.pdf(yy, sd_bottom, sd_top, loc=yo, scale=sd)
@@ -245,10 +253,10 @@ class calculations(object):
         prob = np.zeros([4, 4])
         # lowest_value = 20
         for i in np.arange(4):
-            i0 = 75 * i
+            i0 = 82.55 * i
             for j in np.arange(4):
-                j0 = 75 * j
-                prob[i, j] = pdf[i0:i0 + 75, j0:j0 + 75].sum()
+                j0 = 82.55 * j
+                prob[i, j] = pdf[i0:i0 + 82.55, j0:j0 + 82.55].sum()
 
 #         Leap_Matrix = prob
             
@@ -258,28 +266,34 @@ class calculations(object):
         return prob
 
 def main():
-
+    global leap_status
+    current_time = int(datetime.now().strftime("%S"))
+    old_time = current_time
+    
     listener = SampleListener()
     controller = Leap.Controller()
 
+    prob = np.array([[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]])
     # Have the sample listener receive events from the controller
     controller.add_listener(listener)
     counter = 0
     while True:
-
+        current_time = int(datetime.now().strftime("%S"))
         global start_sensor
         start_sensor = False
+        
+        if current_time == old_time + 30:
+            break
         if start_sensor is True:
-            prob = calculations().compute_prob(xo=calculations().average_center_x(), yo=calculations().average_center_x() - 200, sd=50)
-            print xpar.standard_deviation(array_length)
-            print prob
-            print
+            prob = calculations().compute_prob(xo=calculations().average_center_x(), yo=calculations().average_center_x() +165.1  , sd=50)
+#             print xpar.standard_deviation(array_length)
+#             print prob
+#             print
             counter += 1
+            if current_time == old_time + 30:
+                break
 
-
-
-
-            if prob.max() > .4 and counter > 100:
+            if prob.max() > .150 and counter > 100:
                 break
 
     """circle = plt.Circle((0, 0), (xpar.standard_deviation() + ypar.standard_deviation()) / 2, fc='y')
@@ -303,7 +317,7 @@ def main():
     np.savetxt('Leap_Matrix.txt', prob, fmt='%10e')
 
     controller.remove_listener(listener)
-    
+    print 'success'
    
     return prob
 

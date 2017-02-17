@@ -1,1 +1,1 @@
-pick up a Blue Block finish
+Click RUN again to try and get the robot to pick up the correct block.

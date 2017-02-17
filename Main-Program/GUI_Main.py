@@ -106,7 +106,6 @@ ffmpeg_cmd = ('ffmpeg -f dshow -video_size 1280x720 -framerate 24 -vcodec mjpeg 
 with open('Game_Number_Counter.txt', 'r') as f:
         Last_Game_Number = f.read()
         video_dst = video_dir + Last_Game_Number + '.avi'
-        video_dst_db = video_dir_db + Last_Game_Number
         if os.path.exists(video_dst):
             os.remove(video_dst)
             print ('old video will be replaced')
@@ -379,13 +378,14 @@ def Restart_Game(root_win, root, win_frame,text_box, canvas):
     
 # This function is to change the text box color to red for when the Leap Motion Starts
 def Leap_Motion(text_box, canvas, root, Wait_Timer):
-
+    insert_button_selection(str(Last_Game_Number), 'leap_motion')
     text_box.configure(background='red')
     text_box.update_idletasks()
-    os.system('modular_prob_dist_sliding_window.py')
-#     leap_process = subprocess.Popen("modular_prob_dist_sliding_window.py", shell=True)
-#     while leap_process.poll() == None:
-#         pass
+#     os.system('modular_prob_dist_sliding_window.py')
+    leap_process = subprocess.Popen("modular_prob_dist_sliding_window.py", shell=True)
+    while leap_process.poll() == None:
+        text_box.update_idletasks()
+    
     text_box.configure(background='green')
     text_box.update_idletasks()
     
@@ -402,6 +402,7 @@ def Leap_Motion(text_box, canvas, root, Wait_Timer):
 #     
         
 def NLP(text_box,canvas, root, Wait_Timer):
+    insert_button_selection(str(Last_Game_Number), 'NLP')
     
     
 #     Wait_Timer.reset(2.0)
@@ -623,16 +624,19 @@ def Quit_Button_Function_Continue(root, root_quit, canvas, checkbox):
     boxes_removed = 0
 
     if checkbox.get() == 0:
-        subprocess.Popen('taskkill /im ffmpeg.exe /t /f')
-        delete_game(str(Last_Game_Number - 1))
+        os.system('taskkill /im ffmpeg.exe /t /f')
+        time.sleep(2)
         os.remove(video_dst)
+        print ('video delete')
+        delete_game(str(Last_Game_Number - 1))
+        
 #     elif checkbox == 0:
 #         delete_game(str(Last_Game_Number - 1))
     
     root.destroy()
     if root_quit != 0:
         root_quit.destroy()
-        subprocess.Popen('taskkill /im ffmpeg.exe /t /f')
+#         os.system('taskkill /im ffmpeg.exe /t /f')
 
     consent_window(None)
 

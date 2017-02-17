@@ -63,7 +63,7 @@ SPEECH_SCOPE = 'https://www.googleapis.com/auth/cloud-platform'
 game = np.loadtxt('game.txt', dtype = 'int')
 
 game_num = sys.argv[1]
-print (game_num)
+print (game)
 
 
 def make_channel(host, port):
@@ -200,13 +200,13 @@ def listen_print_loop(recognize_stream):
 
    
     # check is the 'out_file.txt' exist, if so, delete
-    if os.path.isfile('out_file.txt'):
-        os.remove('out_file.txt')
-        
-    # check the message display txt file
-    if os.path.isfile('NLP_Speech.txt'):
-        os.remove('NLP_Speech.txt')
-        
+#     if os.path.isfile('out_file.txt'):
+#         os.remove('out_file.txt')
+#          
+#     # check the message display txt file
+#     if os.path.isfile('NLP_Speech.txt'):
+#         os.remove('NLP_Speech.txt')
+#          
         
     for resp in recognize_stream:
 

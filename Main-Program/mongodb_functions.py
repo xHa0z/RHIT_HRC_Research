@@ -59,7 +59,7 @@ def delete_video_path(game_num):
     request = [DeleteMany({'game_num': game_num,
                            'source':'game'})]
     result = matrices.bulk_write(request)
-    print 'delete game matrix # ' + str(result.deleted_count)    
+    print 'delete video path # ' + str(result.deleted_count)    
 
 def insert_game_matrix(game_num, data):
     curosr = db.games.find({'game_num': game_num})
