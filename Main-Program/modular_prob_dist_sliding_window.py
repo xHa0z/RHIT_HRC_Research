@@ -44,6 +44,7 @@ count = 0
 
 # Leap_Matrix = 0
 leap_status = "standby"
+sys.stdout.write(leap_status)
 
 
 # Opens the File to write and clear the data out of the text file(Gish)

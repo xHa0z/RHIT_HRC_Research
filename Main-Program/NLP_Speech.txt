@@ -1,1 +1,1 @@
-Click RUN again to try and get the robot to pick up the correct block.
+Nothing

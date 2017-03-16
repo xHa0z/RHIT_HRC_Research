@@ -153,11 +153,11 @@ def GUI_Main(root_consent):
     # Creates the
     root = Tkinter.Tk()
     
-    # make it root the entire screen
+#     make it root the entire screen
 #     w, h = root.winfo_screenwidth(), root.winfo_screenheight()
 #     root.overrideredirect(1)
 #     root.geometry("%dx%d+0+0" % (w, h))
-#     
+#      
 #     root.focus_set() # <-- move focus to this widget
 #     root.bind("<Escape>", lambda e: e.widget.quit())
     
@@ -209,12 +209,12 @@ def GUI_Main(root_consent):
         global Last_Game_Number
         
         try: 
-            if (Running.nlp_process.poll() == None):
-                command = 'taskkill /F /pid ' + str(Running.nlp_process.pid)
-                os.system(command)
-            if (Running.leap_process.poll() == None):
-                command = 'taskkill /F /pid ' + str(Running.leap_process.pid)
-                os.system(command)
+#             if (Running.nlp_process.poll() == None):
+            command = 'taskkill /F /pid ' + str(Running.nlp_process.pid)
+            os.system(command)
+#             if (Running.leap_process.poll() == None):
+            command = 'taskkill /F /pid ' + str(Running.leap_process.pid)
+            os.system(command)
         except: 
             print('have not ran module yet.')
             
@@ -242,6 +242,7 @@ def GUI_Main(root_consent):
         time_check.timer_root.focus()
         timer_frame = ttk.Frame(time_check.timer_root, padding=(25, 25))
         timer_frame.grid()
+        timer_frame.focus_set()
         timer_label = ttk.Label(timer_frame, text='You have 10 seconds to click continue to stop the game from restarting.')
         timer_label.grid()
         Continue_Button = ttk.Button(timer_frame,
@@ -380,10 +381,10 @@ def consent_window():
 #     w, h = root_content.winfo_screenwidth(), root_content.winfo_screenheight()
 #     root_content.overrideredirect(1)
 #     root_content.geometry("%dx%d+0+0" % (w, h))
-#     
+#      
 #     root_content.focus_set() # <-- move focus to this widget
 #     root_content.bind("<Escape>", lambda e: e.widget.quit())
-    
+#     
     root_content.wm_title('Consent Window')
     consent_frame = ttk.Frame(root_content, padding = (25, 25))
     consent_frame.grid()
@@ -412,7 +413,10 @@ def consent_window():
                             'no individual information will be disclosed. Your participation in this study is voluntary.'
                             ' You may withdraw from participation at any time by simply clicking the button to end the game. \n'
                             '\n    If you have any questions about the study, or wish to withdraw from the study after completing a '
-                            'game, please contact Ryder Winck by email at winckrc@rose-hulman.edu. If you have any questions about'
+                            'game, please contact Ryder Winck by email at winckrc@rose-hulman.edu. If you would like to have the data '
+                            'associated with your participation deleted please be sure to remember the subject number that will be assigned '
+                            'to you. \n'
+                            '\n     If you have any questions about'
                             " your rights as a research subject or if you feel you've been placed at risk, you may contact the "
                             'Institutional Reviewer, Daniel Morris, by phone at (812) 877-8314, or by e-mail at morris@rose-hulman.edu. \n'
                             '\n    By clicking below you consent to participate in this study:')            
@@ -468,10 +472,12 @@ def Running(text_box, canvas, root, Run_Button):
     insert_button_selection(str(Last_Game_Number), 'NLP')
     insert_button_selection(str(Last_Game_Number), 'leap_motion')
     
+    
     argv = 'streaming_windows.py ' + str(Last_Game_Number)
     Running.nlp_process = subprocess.Popen(argv, shell=True)
-    
+#     
     time.sleep(3)
+    Running.leap_process = subprocess.Popen('modular_prob_dist_sliding_window.py', shell=True)
     text_box.configure(background='yellow')
     text_box.update_idletasks()
     with open('NLP_Speech.txt', 'w') as f:
@@ -480,15 +486,20 @@ def Running(text_box, canvas, root, Run_Button):
         
     root_updater(root, text_box, canvas)
     
-    Running.leap_process = subprocess.Popen('modular_prob_dist_sliding_window.py', shell=True)
+    
+    
     
     def loop():
         global NLP_Speech
+        
         if os.path.isfile('out_file.txt'):
             with open('NLP_Speech.txt', 'r') as f:
                 # NLP send back a matrix filled with all -1 to indicated that it didn't understand
                 if MainFunctions.checkMatrix(getMatrixFromFile('out_file.txt')) == False:
+                    command = 'taskkill /F /pid ' + str(Running.nlp_process.pid)
+                    os.system(command)
                     argv = 'streaming_windows.py ' + str(Last_Game_Number)
+                    
                     Running.nlp_process = subprocess.Popen(argv, shell=True)                        
                     time.sleep(3)
                     NLP_Speech = ("Didn't catch that. Speak again! Be sure to say \n'block' and the block color "
@@ -508,7 +519,7 @@ def Running(text_box, canvas, root, Run_Button):
             Matrix(text_box,canvas, root)
 
         else: 
-         
+#             print(Running.nlp_process.communicate())
             root_updater(root, text_box, canvas)
             running_loop = root.after(1000, loop)
     running_loop = root.after(1000, loop)
@@ -658,6 +669,7 @@ def root_updater(root, text_box, canvas):
         root_win = Tkinter.Toplevel()
         win_frame = ttk.Frame(root_win, padding = (25, 25))
         win_frame.grid()
+        win_frame.focus_set()
         # Label for the win frame
         win_label = Label(win_frame, text='Congratulations on getting three blocks! You win! \n' 
                         ' Now click the restart button to begin a new game! \n'
@@ -672,7 +684,8 @@ def root_updater(root, text_box, canvas):
     text_box.insert(1.0, 
                     
                     'NLP Speech: ' + str(NLP_Speech) + '\n' + 'Leap Motion: ' \
-                    + str(lpp.leap_status))
+                    'The leap motion is running make sure you point over the top about 6 inches with the pencil.'
+                    ' If you feel it is taking  awhile it will time out after about a minute so be patient please.')
 #     if Timer_Check == 1:
 #         text_box.configure(background = 'blue')
 #         text_box.insert(1.0, 'You have 5 seconds to click continue to stop the game from restarting.')

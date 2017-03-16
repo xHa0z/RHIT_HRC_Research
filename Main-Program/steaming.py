@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+"""Sample that streams audio to the Google Cloud Speech API via GRPC."""
 
 from __future__ import division
 from __future__ import print_function
@@ -27,8 +27,6 @@ import datetime
 import sys
 import signal
 import datetime
-from shutil import copyfile
-
 
 
 import numpy as np
@@ -41,11 +39,6 @@ from grpc.framework.interfaces.face import face
 import pyaudio
 from six.moves import queue
 
-from Custom_Timer import TimerReset
-from mongodb_functions import *
-import pymongo
-
-
 # Audio recording parameters
 RATE = 16000
 CHUNK = int(RATE / 10)  # 100ms
@@ -54,17 +47,17 @@ CHUNK = int(RATE / 10)  # 100ms
 # connection alive for that long, plus some more to give the API time to figure
 # out the transcription.
 # * https://g.co/cloud/speech/limits#content
-DEADLINE_SECS = 60 * 3 + 5
+DEADLINE_SECS = 60 * 10 + 5
 SPEECH_SCOPE = 'https://www.googleapis.com/auth/cloud-platform'
 
 
-# Load game from 'game.txt' file
+
 # game board, 0 - nothing, 1 - red, 2 - green, 3 - blue
 game = np.loadtxt('game.txt', dtype = 'int')
 
-# game_num = sys.argv[1]
-game_num = 1
 print (game)
+
+
 
 
 def make_channel(host, port):
@@ -189,25 +182,22 @@ def request_stream(data_stream, rate):
 
 def listen_print_loop(recognize_stream):
 
+    # game = np.array([[0,1,2,3],[0,0,0,2],[2,2,3,1],[1,0,0,3]])
     
     i = 0
     
-    # get current pid
+    print (game)
     print (os.getpid())
-    # get current timestamps and convert to string
-    current_time = datetime.now().strftime("%Y%m%d-%H%M%S")
+    current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    print (current_time)
     cwd = os.getcwd()
     out_path = cwd+'/log/' + current_time + '/'
 
-   
-    # check is the 'out_file.txt' exist, if so, delete
-#     if os.path.isfile('out_file.txt'):
-#         os.remove('out_file.txt')
-#            
-#     # check the message display txt file
-#     if os.path.isfile('NLP_Speech.txt'):
-#         os.remove('NLP_Speech.txt')
-           
+    out_file = cwd + 'game' + '.txt'
+    # datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+
+    if os.path.isfile('out_file.txt'):
+        os.remove('out_file.txt')
         
     for resp in recognize_stream:
 
@@ -219,24 +209,19 @@ def listen_print_loop(recognize_stream):
 
         # Display the transcriptions & their alternatives
         for result in resp.results:
+            # print(result)
+            # print (result.alternatives[0].transcript)
             if not(os.path.exists(out_path)):
                 os.makedirs(out_path)
-            # save each captured voice command
             filename = out_path+'log_' + str(i) + '.txt'
-#             display_msg = 'NLP_Speech.txt'
-            insert_transcript(game_num, str(result.alternatives[0].transcript))
-            # print(result.alternatives[0].transcript)
+            print(result.alternatives[0].transcript)
             log = open(filename, 'w')
-#             msg = open(display_msg,'w')
             log.write(result.alternatives[0].transcript)
-#             msg.write(result.alternatives[0].transcript)
             log.close()
-#             msg.close()
+            # print(result.alternatives[0].transcript, file = log)
             i += 1
+
         
-        
-        
-        # extract desired color locations
         if any(re.search(r'\b(pick)\b', alt.transcript, re.I)
                for result in resp.results
                for alt in result.alternatives):
@@ -249,29 +234,29 @@ def listen_print_loop(recognize_stream):
                 temp_game[temp_game != 1] = 0
                 temp_game[temp_game == 1] = 1
 
-                
+                print (temp_game)
 
             if any(re.search(r'\b(green)\b', alt.transcript, re.I)
                for result in resp.results
                for alt in result.alternatives):
-                
+                temp_game = game
                 temp_game[temp_game != 2] = 0
                 temp_game[temp_game == 2] = 1
-                
+                print (temp_game)
 
             if any(re.search(r'\b(blue)\b', alt.transcript, re.I)
                for result in resp.results
                for alt in result.alternatives):
-                
+                temp_game = game
                 temp_game[temp_game != 3] = 0
                 temp_game[temp_game == 3] = 1
 
-                
-#             insert_nlp_matrix(game_num, str(temp_game))
+                print (temp_game)
+
             np.savetxt('out_file.txt', temp_game, fmt='%1d')
             
 
-        
+
             
 
 
@@ -281,7 +266,7 @@ def listen_print_loop(recognize_stream):
                for result in resp.results
                for alt in result.alternatives):
 
-            
+
             pid = os.getpid()
             command = 'taskkill /F /pid ' + str(pid)
 
@@ -289,45 +274,25 @@ def listen_print_loop(recognize_stream):
             err_game = np.array([[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1]])
             multi_commands = np.array([[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]])
 
-            # check if the output file generated
             if not os.path.isfile('out_file.txt'):
                 np.savetxt('out_file.txt', err_game, fmt='%1d')
-                insert_nlp_matrix(game_num, str(err_game))
+                # os.system('pkill -f streaming_linux.py')
                 os.system(command)
 
 
 
             out_check = np.loadtxt('out_file.txt', dtype = 'int')
             current_game = np.loadtxt('game.txt', dtype = 'int')
-            # check if there is an error in output file
+            
             if np.array_equal(out_check, current_game) or np.array_equal(out_check, multi_commands):
 
                 np.savetxt('out_file.txt', err_game, fmt='%1d')
-                insert_nlp_matrix(game_num, str(err_game) )
-            
-            
-            src = out_path+'log_' + str(0) + '.txt'  
-            print (src)
-            dst = cwd+'/NLP_Speech.txt'
-            copyfile(src, dst)
-            insert_nlp_matrix(game_num, str(out_check))
-           
-        
+            # pid = os.getpid()
+            # command = 'taskkill /F /pid ' + str(pid)
             os.system(command)
-            
-            
-
-def End_Game_Timer():
-    pid = os.getpid()
-    command = 'taskkill /F /pid ' + str(pid)
-#     print('End by Timer')
-    
-    os.system(command)
 
 
 def main():
-    Wait_Timer = TimerReset(20.0, End_Game_Timer)
-    Wait_Timer.start()
     with cloud_speech.beta_create_Speech_stub(
             make_channel('speech.googleapis.com', 443)) as service:
         # For streaming audio from the microphone, there are three threads.
@@ -345,7 +310,6 @@ def main():
             # Now, put the transcription responses to use.
             try:
                 listen_print_loop(recognize_stream)
-             
 
                 recognize_stream.cancel()
             except face.CancellationError:
