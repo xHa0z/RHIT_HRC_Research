@@ -66,6 +66,8 @@ game = np.loadtxt('game.txt', dtype = 'int')
 game_num = 1
 print (game)
 
+log_num = 0
+
 
 def make_channel(host, port):
     """Creates an SSL channel with auth credentials from the environment."""
@@ -187,10 +189,10 @@ def request_stream(data_stream, rate):
         yield cloud_speech.StreamingRecognizeRequest(audio_content=data)
 
 
-def listen_print_loop(recognize_stream):
-
+def listen_print_loop(recognize_stream, log_num):
+# REAL THINGS START HERE!
     
-    i = 0
+#     i = 0
     
     # get current pid
     print (os.getpid())
@@ -222,7 +224,7 @@ def listen_print_loop(recognize_stream):
             if not(os.path.exists(out_path)):
                 os.makedirs(out_path)
             # save each captured voice command
-            filename = out_path+'log_' + str(i) + '.txt'
+            filename = out_path+'log_' + str(log_num) + '.txt'
 #             display_msg = 'NLP_Speech.txt'
             insert_transcript(game_num, str(result.alternatives[0].transcript))
             # print(result.alternatives[0].transcript)
@@ -232,7 +234,7 @@ def listen_print_loop(recognize_stream):
 #             msg.write(result.alternatives[0].transcript)
             log.close()
 #             msg.close()
-            i += 1
+            log_num += 1
         
         
         
@@ -306,7 +308,7 @@ def listen_print_loop(recognize_stream):
                 insert_nlp_matrix(game_num, str(err_game) )
             
             
-            src = out_path+'log_' + str(0) + '.txt'  
+            src = out_path+'log_' + str(log_num - 1) + '.txt'  
             print (src)
             dst = cwd+'/NLP_Speech.txt'
             copyfile(src, dst)
@@ -318,6 +320,13 @@ def listen_print_loop(recognize_stream):
             
 
 def End_Game_Timer():
+    err_game = np.array([[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1]])
+    
+    # check if the output file generated
+    if not os.path.isfile('out_file.txt'):
+        np.savetxt('out_file.txt', err_game, fmt='%1d')
+        insert_nlp_matrix(game_num, str(err_game))
+                
     pid = os.getpid()
     command = 'taskkill /F /pid ' + str(pid)
 #     print('End by Timer')
@@ -344,7 +353,7 @@ def main():
 
             # Now, put the transcription responses to use.
             try:
-                listen_print_loop(recognize_stream)
+                listen_print_loop(recognize_stream, 0)
              
 
                 recognize_stream.cancel()

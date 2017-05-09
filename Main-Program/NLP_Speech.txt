@@ -1,1 +1,1 @@
-Nothing
+Tell the robot what block you want to pick up. You need to say a color and whenyou are done talking you NEED TO SAY FINISH!

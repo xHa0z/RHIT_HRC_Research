@@ -101,24 +101,27 @@ class consent_window():
         consent_box['yscrollcommand'] = consent_scroll.set
         consent_scroll.grid(row=0,column=0, sticky=E)
         consent_box.insert(1.0, '            Human-Robot Collaboration \n' 
-                                '\n    You are being invited to participate in a research study about human-robot collaboration. ' 
-                                'This study is being conducted by Dr. Ryder Winck and Dr. Carlotta Berry,' 
-                                'from the Mechanical Engineering and Electrical and Computer Engineering Departments '
-                                'at Rose-Hulman Institute of Technology. There are no known risks or costs if you decide' 
-                                'to participate in this research study. The information you provide will be used to improve '
-                                'algorithms that allow robots to interpret human behavior improving their ability to interact'
-                                ' with humans. The information collected may not benefit you directly, but the information learned'
-                                ' in this study should improve human-robot interaction. \n'
-                                '\n    Your participation in this study will be in the form of a game played with the robot.'
-                                ' There will be audio and video recordings of you collected as you participate in this game.'
-                                ' The data collected as you play the game will be anonymous. Should the data be published, '
-                                'no individual information will be disclosed. Your participation in this study is voluntary.'
-                                ' You may withdraw from participation at any time by simply clicking the button to end the game. \n'
-                                '\n    If you have any questions about the study, or wish to withdraw from the study after completing a '
-                                'game, please contact Ryder Winck by email at winckrc@rose-hulman.edu. If you have any questions about'
-                                " your rights as a research subject or if you feel you've been placed at risk, you may contact the "
-                                'Institutional Reviewer, Daniel Morris, by phone at (812) 877-8314, or by e-mail at morris@rose-hulman.edu. \n'
-                                '\n    By clicking below you consent to participate in this study:')            
+                            '\n    You are being invited to participate in a research study about human-robot collaboration. ' 
+                            'This study is being conducted by Dr. Ryder Winck and Dr. Carlotta Berry,' 
+                            'from the Mechanical Engineering and Electrical and Computer Engineering Departments '
+                            'at Rose-Hulman Institute of Technology. There are no known risks or costs if you decide' 
+                            'to participate in this research study. The information you provide will be used to improve '
+                            'algorithms that allow robots to interpret human behavior improving their ability to interact'
+                            ' with humans. The information collected may not benefit you directly, but the information learned'
+                            ' in this study should improve human-robot interaction. \n'
+                            '\n    Your participation in this study will be in the form of a game played with the robot.'
+                            ' There will be audio and video recordings of you collected as you participate in this game.'
+                            ' The data collected as you play the game will be anonymous. Should the data be published, '
+                            'no individual information will be disclosed. Your participation in this study is voluntary.'
+                            ' You may withdraw from participation at any time by simply clicking the button to end the game. \n'
+                            '\n    If you have any questions about the study, or wish to withdraw from the study after completing a '
+                            'game, please contact Ryder Winck by email at winckrc@rose-hulman.edu. If you would like to have the data '
+                            'associated with your participation deleted please be sure to remember the subject number that will be assigned '
+                            'to you. \n'
+                            '\n     If you have any questions about'
+                            " your rights as a research subject or if you feel you've been placed at risk, you may contact the "
+                            'Institutional Reviewer, Daniel Morris, by phone at (812) 877-8314, or by e-mail at morris@rose-hulman.edu. \n'
+                            '\n    By clicking below you consent to participate in this study:')            
         consent_box.configure(state='disabled')
         
         # Create a button that says that they consent

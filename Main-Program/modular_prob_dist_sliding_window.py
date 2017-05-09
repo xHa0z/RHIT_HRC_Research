@@ -108,7 +108,7 @@ class SampleListener(Leap.Listener):
                 #####################################################################################
                 # 1,2,3,4,5,6,7 feet
 
-                mag = (1 / frame.tools[0].direction[2]) * (-1143 - frame.tools[0].tip_position[2])
+                mag = (1 / frame.tools[0].direction[2]) * (-1190 - frame.tools[0].tip_position[2])
                 # print mag
 
                 # compute the position in the table top plane using the magnitude
@@ -121,19 +121,19 @@ class SampleListener(Leap.Listener):
 
                 start_sensor = False
 
-                if xpos < -200 and xpos > -630:
+                if xpos < 100 and xpos > -630:
                     start_sensor = True
                     xpar.add_value(xpos)
                 else:
-                    print('Please Point @ a block on the grid')
+                    #print('Please Point @ a block on the grid')
                     leap_status = 'Please Point @ a block on the grid'
 #                     time.sleep(1)
 
-                if ypos < 450 and ypos > -10:
+                if ypos < 500 and ypos > -10:
                     start_sensor = True
                     ypar.add_value(ypos)
                 else:
-                    print('Please Point @ a block on the grid')
+                    #print('Please Point @ a block on the grid')
                     leap_status = 'Please Point @ a block on the grid'
 #                     time.sleep(1)
 
@@ -166,7 +166,7 @@ class SampleListener(Leap.Listener):
                 ################# This is for the paper on the table ###########################
                 # compute the distance along the tool direction from the tip position to the table top
                 # the -11 is due to the fact that the origin in ~11 mm above the table top
-                mag = (1 / frame.tools[0].direction[1]) * (39.8 - frame.tools[0].tip_position[1])
+                mag = (1 / frame.tools[0].direction[1]) * (0 - frame.tools[0].tip_position[1])
                 # print mag
 
                 # compute the position in the table top plane using the magnitude
@@ -238,15 +238,42 @@ class calculations(object):
         avg_ypar_sum = ypar.averager_function()
 
         return avg_ypar_sum
-    def compute_prob(self, xo=-407.06, yo=215.24, sd=150):
+#     def compute_prob(self, xo=-407.06, yo=215.24, sd=150):
+#         counter = 0
+#         yo = -yo
+#         sd_left = (-571.5 - xo) / sd
+#         sd_right = (-241.3 - xo) / sd
+#         sd_bottom = (50.8 - yo) / sd
+#         sd_top = (381 - yo) / sd
+#         x = np.linspace(-571.5, -241.3, 330.2)
+#         y = np.linspace(50.8, 381, 330.2)
+#         xx, yy = np.meshgrid(x, y)
+#         xx_pdf = truncnorm.pdf(xx, sd_left, sd_right, loc=xo, scale=sd)
+#         yy_pdf = truncnorm.pdf(yy, sd_bottom, sd_top, loc=yo, scale=sd)
+#         pdf = xx_pdf * yy_pdf
+#         prob = np.zeros([4, 4])
+#         # lowest_value = 20
+#         for i in np.arange(4):
+#             i0 = 82.55 * i
+#             for j in np.arange(4):
+#                 j0 = 82.55 * j
+#                 prob[i, j] = pdf[i0:i0 + 82.55, j0:j0 + 82.55].sum()
+# 
+# #         Leap_Matrix = prob
+#             
+#         with open('Game_Number_Counter.txt', 'r') as f:
+#             game_num = f.read()
+#         insert_leap_motion_raw(game_num, str(prob))
+#         return prob
+    def compute_prob(self, xo=0, yo=0 , sd=169.05):
         counter = 0
         yo = -yo
-        sd_left = (-571.5 - xo) / sd
-        sd_right = (-241.3 - xo) / sd
-        sd_bottom = (50.8 - yo) / sd
-        sd_top = (381 - yo) / sd
-        x = np.linspace(-571.5, -241.3, 330.2)
-        y = np.linspace(50.8, 381, 330.2)
+        sd_left = (-169.05 - xo) / sd
+        sd_right = (169.05 - xo) / sd
+        sd_bottom = (-169.05- yo) / sd
+        sd_top = (169.05 - yo) / sd
+        x = np.linspace(-169.05, 169.05, 338.1)
+        y = np.linspace(-169.05, 169.05, 338.1)
         xx, yy = np.meshgrid(x, y)
         xx_pdf = truncnorm.pdf(xx, sd_left, sd_right, loc=xo, scale=sd)
         yy_pdf = truncnorm.pdf(yy, sd_bottom, sd_top, loc=yo, scale=sd)
@@ -254,10 +281,10 @@ class calculations(object):
         prob = np.zeros([4, 4])
         # lowest_value = 20
         for i in np.arange(4):
-            i0 = 82.55 * i
+            i0 = 84.525 * i
             for j in np.arange(4):
-                j0 = 82.55 * j
-                prob[i, j] = pdf[i0:i0 + 82.55, j0:j0 + 82.55].sum()
+                j0 = 84.525 * j
+                prob[i, j] = pdf[i0:i0 + 84.525, j0:j0 + 84.525].sum()
 
 #         Leap_Matrix = prob
             
@@ -286,15 +313,17 @@ def main():
         if current_time == old_time + 30:
             break
         if start_sensor is True:
-            prob = calculations().compute_prob(xo=calculations().average_center_x(), yo=calculations().average_center_x() +165.1  , sd=50)
+            prob = calculations().compute_prob(xo=calculations().average_center_x()+181.75, yo=calculations().average_center_y()-232, sd=50)
 #             print xpar.standard_deviation(array_length)
-#             print prob
+            print prob;
 #             print
             counter += 1
+            #print counter
+            #print prob.max()
             if current_time == old_time + 30:
                 break
 
-            if prob.max() > .150 and counter > 100:
+            if prob.max() > .3 and counter > 10:
                 break
 
     """circle = plt.Circle((0, 0), (xpar.standard_deviation() + ypar.standard_deviation()) / 2, fc='y')

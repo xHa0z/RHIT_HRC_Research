@@ -8,6 +8,7 @@ def getMatrixFromFile(fileName):
     This function obtains the matrix from the specified text file
     and returns it as a 2D array.
     """
+    # changed by Devon and Zhihoe to fix block errors
 #     matrixArray = []
 #     fileText = open(fileName + ".txt", "r+")
 #     for line in fileText.readlines():
@@ -25,6 +26,7 @@ def multiplyMatrices(matrix1, matrix2):
     returns the resulting matrix and the index of the resulting
     matrix's maximum number in an array.
     """
+    # changed by Devon and Zhihoe to fix block errors
 #     matrixArray = []
 #     maxNumber = -1000000
 #     for row1, row2 in zip(matrix1, matrix2):

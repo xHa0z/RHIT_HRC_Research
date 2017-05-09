@@ -76,6 +76,7 @@ import modular_prob_dist_sliding_window as lpp
 
 # from modular_prob_dist_sliding_window import Leap_Matrix
 from LeapPython import Controller_is_connected_get
+from numpy import size
 
 
 
@@ -101,7 +102,7 @@ video_dst = ''
 if not os.path.exists('C:/database/video/'): 
     os.makedirs('C:/database/video/')
     
-ffmpeg_cmd = ('ffmpeg -f dshow -video_size 1280x720 -framerate 24 -vcodec mjpeg -i video="Microsoft LifeCam Studio":audio="Microphone (2- CD04)" ')
+ffmpeg_cmd = ('ffmpeg -f dshow -i video="Logitech HD Webcam C615":audio="Microphone (2- CD04)" ')
 
 
 
@@ -121,9 +122,10 @@ with open('test.txt', 'w') as f:
 
 # NLP_Speech file passes what was picked up by the NLP
 with open('NLP_Speech.txt', 'w') as f:
-    f.write('Nothing')
+    f.write('Tell the robot what block you want to pick up. You need to say a color and when' 
+                    'you are done talking you NEED TO SAY FINISH!')
 
-NLP_Speech = 'Nothing'
+NLP_Speech = 'When talking to the robot please say a block color. End your sentence with "finish".'
     
 # Test file passes information between Cyton and Main program
 # with open('out_file.txt', 'w') as f:
@@ -142,24 +144,30 @@ def GUI_Main(root_consent):
     # The Main Frame holds the Canvas and the Secondary holds the 
     # text box and the buttons 
     
+    with open('test.txt', 'w') as f:
+        f.write('0')
+    
     # start video recording
     video_rec_cmd = ffmpeg_cmd + video_dst
     print (video_dst)
-    subprocess.Popen(video_rec_cmd, shell=True, creationflags=CREATE_NEW_CONSOLE)
+    pipe = subprocess.Popen(video_rec_cmd, shell=True,  creationflags=CREATE_NEW_CONSOLE)
+    print ("start recording")
     
     # Get rid of the consent window when the game starts
     root_consent.destroy()
     
     # Creates the
     root = Tkinter.Tk()
+   
+    #  make it root the entire screen
+    w, h = root.winfo_screenwidth(), root.winfo_screenheight()
+    root.overrideredirect(1)
+    root.geometry("%dx%d+0+0" % (w, h))
     
-#     make it root the entire screen
-#     w, h = root.winfo_screenwidth(), root.winfo_screenheight()
-#     root.overrideredirect(1)
-#     root.geometry("%dx%d+0+0" % (w, h))
-#      
-#     root.focus_set() # <-- move focus to this widget
-#     root.bind("<Escape>", lambda e: e.widget.quit())
+      
+    root.focus_set() # <-- move focus to this widget
+    root.focus_force()
+    root.bind("<Escape>", lambda e: e.widget.quit())
     
     main_frame = ttk.Frame(root, padding=(25, 25))
     secondary_frame = ttk.Frame(root, padding=(25, 25))
@@ -169,17 +177,17 @@ def GUI_Main(root_consent):
 #     thrid_frame.place(x=150,y=150)
     
     # Text box to give feedback in the GUI
-    text_box = Text(secondary_frame, width=65, height=5, background='red',wrap=WORD)
+    text_box = Text(secondary_frame, width=65, height=10, background='red',wrap=WORD,font = ("Helvetica", 12))
     text_box.grid(row=0, column=0)
     
-    instruction_box = Text(secondary_frame, width=50, height=15, background='white', wrap=WORD)
+    instruction_box = Text(secondary_frame, width=50, height=25, background='white', wrap=WORD,font=("Helvetica", 13))
     instruction_box.grid(row=5, column=0, pady=10)
     instruction_scroll = Scrollbar(secondary_frame)
     instruction_scroll.config(command=instruction_box.yview)
     instruction_box['yscrollcommand'] = instruction_scroll.set
     instruction_scroll.grid(row=5,column=0, sticky=E)
-    instruction_box.insert(1.0, '1.) Please place the blocks in the cubby holes according to how they are positioned on '
-                                    'the GUI.' + '\n' + '\n'
+    instruction_box.insert(1.0, '1.) Before beginning please place the blocks in the cubby holes according to how they are positioned on '
+                                    'the GUI. The goal is to remove three of these blocks by using the robot to win the game.' + '\n' + '\n'
                                 '2.) Place the headset on to communicate with the robot.' + '\n' + '\n'
                                 '3.) Press the Run button then the screen will turn yellow then you start talking and pointing '
                                     'with the pencil over the leap motion. It might take awhile for the leap to finish'
@@ -187,14 +195,23 @@ def GUI_Main(root_consent):
                                 '4.) There are timeout functions so if you think that it is hung up just give it a bit and everything will'
                                     ' be chill!' + '\n' + '\n'
                                 '**** IF YOU THINK THAT THIS SOFTWARE IS BROKE OR NEED TO REPORT AN ISSUE PLEASE GO TO DR. WINCK IN'
-                                'MOENCH D111 OR BY PHONE AT: 877-8098 ****')
+                                ' MOENCH D111 OR BY PHONE AT: 877-8098 ****')
     
     instruction_box.configure(state='disabled')
     text_box.configure(state='disabled')
     
     # The canvas for the board and grid of boxes
     canvas = Canvas(main_frame, width=600, height=600)
-    canvas.grid()
+    canvas.grid(row=1, column=0)
+    
+    # Label to tell user to place blocks in cubby
+    cubby_instructions = ttk.Label(main_frame, text='Set the cubby by the robot to match the grid on screen.',
+                                   font=("Helvetica", 18))
+    cubby_instructions.grid(row=2, column =0, sticky = S, pady = 7)
+    
+    cubby_label = ttk.Label(main_frame, text='Cubby Layout Shown Below',
+                                   font=("Helvetica", 18))
+    cubby_label.grid(row=0, column =0, sticky = S, pady = 7)
     
     # Starts up the the game board right away.
     grid_create(canvas)
@@ -210,15 +227,22 @@ def GUI_Main(root_consent):
         
         try: 
 #             if (Running.nlp_process.poll() == None):
+            
             command = 'taskkill /F /pid ' + str(Running.nlp_process.pid)
             os.system(command)
+        except: 
+            print('have not ran module yet.')
 #             if (Running.leap_process.poll() == None):
+        try:
             command = 'taskkill /F /pid ' + str(Running.leap_process.pid)
             os.system(command)
         except: 
             print('have not ran module yet.')
+               
+        with open('NLP_Speech.txt', 'w') as f:
+            NLP_Speech = "Nothing said yet."
+            f.write(NLP_Speech)  
             
-
         Last_Game_Number += 1
         with open('Game_Number_Counter.txt', 'w') as f:
             f.write(str(Last_Game_Number))
@@ -230,33 +254,45 @@ def GUI_Main(root_consent):
          
         boxes_removed = 0
          
+        root_updater(root, text_box, canvas)
+        
         root.destroy()
  
-        os.system('taskkill /im ffmpeg.exe /t /f')
+#         os.system('taskkill /im ffmpeg.exe /t /f')
+        NLP_Speech = 'When talking to the robot please say a block color. End your sentence with "finish".'
         time.sleep(2)
         consent_window()
          
     def time_check():
+        root.focus_set()
         time_check.close_loop = root.after(10000, Force_Quit)
         time_check.timer_root = Tkinter.Toplevel()
-        time_check.timer_root.focus()
         timer_frame = ttk.Frame(time_check.timer_root, padding=(25, 25))
         timer_frame.grid()
-        timer_frame.focus_set()
         timer_label = ttk.Label(timer_frame, text='You have 10 seconds to click continue to stop the game from restarting.')
         timer_label.grid()
         Continue_Button = ttk.Button(timer_frame,
                                      text='Continue')
         Continue_Button.grid(row=2, column =0, pady=5, sticky=E)
         Continue_Button['command'] = lambda: cancel()
+        
+        def time_check_focus():
+            time_check.timer_root.focus_force()
+            time_check.timer_root.after(500, time_check_focus)
+    
+        time_check.timer_root.after(500, time_check_focus)
+        
+#         time_check.timer_root.focus_set()
+#         time_check.timer_root.focus_force()
+#         time_check.timer_root.focus_lastfor()
             
     
     def cancel():
         root.after_cancel(time_check.close_loop)
         time_check.timer_root.destroy()
-        loop = root.after(300000, time_check)
+        loop = root.after(120000, time_check)
             
-    loop = root.after(300000, time_check)
+    loop = root.after(180000, time_check) # ~3 minutes
     
     # The buttons for start, delete, and reset. The delete button
     # deletes the box number that you typed in the entry box.
@@ -273,19 +309,51 @@ def GUI_Main(root_consent):
 #                                      text='Start Leap Motion')
 #     Leap_Motion_Button.grid(row=2, column =0, pady=5)
 #     Leap_Motion_Button['command'] = lambda: Leap_Motion(text_box, canvas, root)
+    buttonStyle = ttk.Style()
+    buttonStyle.configure('Run.TButton',height = 10, width = 10,font = ("Helvetica", 16))
     
     Quit_Button = ttk.Button(secondary_frame,
-                                     text='Quit')
+                            text='Quit', style = 'Run.TButton')
     Quit_Button.grid(row=6, column =0, pady=5)
-    Quit_Button['command'] = lambda: Quit_Button_Function(root, canvas)
+    Quit_Button['command'] = lambda: Quit_Button_Function(root, text_box, canvas)
     
     Run_Button = ttk.Button(secondary_frame,
-                                     text='RUN')
+                             text='RUN', style = 'Run.TButton')
     Run_Button.grid(row=1, column =0, pady=5)
     Run_Button['command'] = lambda: Running(text_box, canvas, root, Run_Button)
     
     root_updater(root, text_box, canvas)
     
+    def instruction_pop_up():
+        
+        root_game_instructions = Tkinter.Toplevel()
+        root_game_instructions.iconposition(20, 1000)
+        
+        instructions = ttk.Label(root_game_instructions, text='Place the blocks in the cubby as shown in the Cubby Layout. Once you are done press okay.'
+                                 ,font=("Helvetica", 18))
+        instructions.grid(row=0, column =0, pady=20)
+        
+        okay_button = ttk.Button(root_game_instructions,
+                                text='Okay')
+        okay_button.grid(row=1, column =0, pady=20)
+        okay_button['command'] = lambda: instruction_pop_up2(root_game_instructions,instructions,okay_button)
+        
+        def time_check():
+            root_game_instructions.focus_force()
+            root_game_instructions.after(500, time_check)
+    
+        root_game_instructions.after(500, time_check)
+    
+    def instruction_pop_up2(root_game_instructions,instructions,okay_button):
+        instructions.config(text='The objective is to make the robot pick up three blocks from the cubby.',
+                            font=("Helvetica", 18))
+        root_game_instructions.iconposition(20, 1000)
+        
+        
+    
+        okay_button['command'] = lambda: root_game_instructions.destroy()
+    
+    instruction_pop_up() 
     root.mainloop()
 
 
@@ -296,8 +364,8 @@ This function doesn't currently gernerate a random sequence of
 boxes and colors. The pattern can be changed at the end function
 '''
 def grid_create(canvas): 
-    Random_Number_of_Boxes = randint(5,15) 
-    Box_Postion = sample(xrange(0,15), Random_Number_of_Boxes)
+    Random_Number_of_Boxes = randint(4,15) 
+    Box_Postion = sample(xrange(0,15), 6)
     Box_Postion.sort()
     
     # They fill up the board by default with white boxes
@@ -305,7 +373,7 @@ def grid_create(canvas):
         for j in range(4):
             num = canvas.create_rectangle(25 + 150 * j, 25 + 150 * k, 125 + j * 150,
                                            125 + k * 150, fill="white")
-            canvas.create_text((75 + 150 * j, 75 + 150 * k), text=(j + k * 4),
+            canvas.create_text((75 + 150 * j, 75 + 150 * k), text=(j + k * 4+1),
                                 font=('Times New Roman', 20))
             box.append(num)
             
@@ -357,10 +425,14 @@ def grid_create(canvas):
     insert_game_matrix(str(Last_Game_Number), str(box_matrix))
     np.savetxt('game.txt', box_matrix, fmt='%1d')
     
+    print(box_new)
+    
     
     # This creates the grid system on the canvas
     for k in range(4):
         # Row of Lines
+        
+        
         canvas.create_line(0, k * 150, 600, k * 150, width=3)
         
         # Column of lines
@@ -376,33 +448,40 @@ def consent_window():
         print('The camera is not on!')
     root_content = Tkinter.Tk()
     
-    
     # make it root the entire screen
 #     w, h = root_content.winfo_screenwidth(), root_content.winfo_screenheight()
 #     root_content.overrideredirect(1)
 #     root_content.geometry("%dx%d+0+0" % (w, h))
-#      
+#     
+    root_content.attributes('-fullscreen', True)
+    
+    root_content.focus_set()
+    root_content.focus()
+      
 #     root_content.focus_set() # <-- move focus to this widget
-#     root_content.bind("<Escape>", lambda e: e.widget.quit())
+    root_content.bind("<Escape>", lambda e: e.widget.quit())
 #     
     root_content.wm_title('Consent Window')
     consent_frame = ttk.Frame(root_content, padding = (25, 25))
-    consent_frame.grid()
+    
+    consent_frame.place(relx = .5,rely = .5, anchor = "center")
+#   consent_frame.grid()
     
     # This is the consent box where the consent form is shown 
-
-    consent_box = Text(consent_frame, width=50, height=15, background='white', wrap=WORD)
-    consent_box.focus()
+    
+    consent_box = Text(consent_frame, width=60, height=40, background='white', wrap=WORD)
+    
+    
     consent_box.grid(row=0, column=1, pady=10)
     consent_scroll = Scrollbar(consent_frame)
     consent_scroll.config(command=consent_box.yview)
     consent_box['yscrollcommand'] = consent_scroll.set
     consent_scroll.grid(row=0,column=0, sticky=E)
-    consent_box.insert(1.0, '            Human-Robot Collaboration \n' 
+    consent_box.insert(1.0, '                  Human-Robot Collaboration \n' 
                             '\n    You are being invited to participate in a research study about human-robot collaboration. ' 
                             'This study is being conducted by Dr. Ryder Winck and Dr. Carlotta Berry,' 
                             'from the Mechanical Engineering and Electrical and Computer Engineering Departments '
-                            'at Rose-Hulman Institute of Technology. There are no known risks or costs if you decide' 
+                            'at Rose-Hulman Institute of Technology. There are no known risks or costs if you decide ' 
                             'to participate in this research study. The information you provide will be used to improve '
                             'algorithms that allow robots to interpret human behavior improving their ability to interact'
                             ' with humans. The information collected may not benefit you directly, but the information learned'
@@ -436,6 +515,12 @@ def consent_window():
     
     Game_Number_Label.grid(row=1, column= 1, pady= 5)
     
+    def time_check():
+        root_content.focus_force()
+        root_content.after(500, time_check)
+    
+    root_content.after(500, time_check)
+    
     root_content.mainloop()
         
 
@@ -453,12 +538,22 @@ def Restart_Game(root_win, root, win_frame,text_box, canvas):
     if root_win != None:
         root_win.destroy()
         
+    with open('NLP_Speech.txt', 'w') as f:
+        NLP_Speech = "Nothing said yet."
+        f.write(NLP_Speech)   
+        
+#     root_updater(root, text_box, canvas)
+    
+    boxes_removed = 0
+    
     root.destroy()
     
     Last_Game_Number += 1
     with open('Game_Number_Counter.txt', 'w') as f:
         f.write(str(Last_Game_Number))
-        
+
+    NLP_Speech = 'When talking to the robot please say a block color. End your sentence with "finish".'
+    
     os.system('taskkill /im ffmpeg.exe /t /f')
     consent_window()
     
@@ -481,7 +576,9 @@ def Running(text_box, canvas, root, Run_Button):
     text_box.configure(background='yellow')
     text_box.update_idletasks()
     with open('NLP_Speech.txt', 'w') as f:
-        NLP_Speech = "Please say something like 'pick up the blue block finish' YOU MUST SAY FINISH!."
+#         NLP_Speech = "Please say something like 'pick up the blue block finish' YOU MUST SAY FINISH!."
+        NLP_Speech = ("Tell the robot what block you want to pick up. You need to say a color and when " 
+                    "you are done talking you NEED TO SAY FINISH!")
         f.write(NLP_Speech)
         
     root_updater(root, text_box, canvas)
@@ -572,7 +669,7 @@ def Game_Check(text_box, canvas, root):
     Game_Check_Frame= ttk.Frame(root_Game_Check, padding = (25, 25))
     Game_Check_Frame.grid()
     
-    Game_Check_Question_Label = ttk.Label(Game_Check_Frame, text='Is this the correct block ' + str(Box_Selected) +
+    Game_Check_Question_Label = ttk.Label(Game_Check_Frame, text='Is this the correct block ' + str(Box_Selected+1) +
                                           ' ?')
     Game_Check_Question_Label.grid(row=0, column= 0, pady= 5) 
 
@@ -589,6 +686,11 @@ def Game_Check(text_box, canvas, root):
     
     Wrong_Button['command'] = lambda: Wrong_Block(root_Game_Check,text_box, canvas, root)
     
+    def time_check():
+        root_Game_Check.focus_force()
+        root_Game_Check.after(1000, time_check)
+    
+    root_Game_Check.after(1000, time_check)
     
     # This function writes to the robot file to move the robot if it is correct block picked
     def Correct_Block(root_Game_Check,text_box, canvas, root):
@@ -602,18 +704,27 @@ def Game_Check(text_box, canvas, root):
         # Deletes the box from the array which removes it from the screen after pressing update
         # then then it adds one to the amount of boxes removed.
         box_number = Box_Selected
-        print(box_new)
+
         if box_number != "Nothing":
+            print(box)
+            print(box_new)
+            print(previous_box)
+            print(box_number)
+            
             if box[box_number] != 0 & box_number != previous_box:
                 canvas.delete(box[box_number])
                 box[box_number] = 0
+#                 box_new[box_number] = 0
                 box_new[box_number] = 0
+                print(box)
                 print(box_new)
+                
                 box_matrix = np.reshape(box_new, (4,4))
+                print(box_matrix)
                 np.savetxt('game.txt', box_matrix, fmt='%1d')
                 previous_box = box_number
                 boxes_removed = boxes_removed + 1
-                box_number = 'You got block: ' + str(box_number) + ' ! Nice job! '
+                box_number = 'You got block: ' + str(box_number + 1) + ' ! Nice job! '
         #                 read_box_selected = 1
             
             elif box_number == previous_box:
@@ -680,6 +791,13 @@ def root_updater(root, text_box, canvas):
         restart_button.grid(row=7, column=0, sticky=W,pady=5)
         restart_button['command'] = lambda: Restart_Game(root_win, root, win_frame,text_box, canvas)
         
+        def time_check():
+            root_win.focus_force()
+            root_win.after(500, time_check)
+    
+        root_win.after(500, time_check)
+        
+        
     # What is put into the text box
     text_box.insert(1.0, 
                     
@@ -696,12 +814,12 @@ def root_updater(root, text_box, canvas):
     canvas.update_idletasks()
     root.update_idletasks()
     
-def Quit_Button_Function(root, canvas):
+def Quit_Button_Function(root, text_box, canvas):
     global Last_Game_Number
 
     
     Root_Quit = Tkinter.Toplevel()
-    global_Root_Quit = Root_Quit
+    
     Quit_Frame= ttk.Frame(Root_Quit, padding = (25, 25))
     Quit_Frame.grid()
 
@@ -722,6 +840,12 @@ def Quit_Button_Function(root, canvas):
     
     Quit_Button_Second['command'] = lambda: Quit_Button_Function_Continue()
     
+    def time_check():
+        Root_Quit.focus_force()
+        Root_Quit.after(1000, time_check)
+    
+    Root_Quit.after(1000, time_check)
+    
     def Quit_Button_Function_Continue():
         global Last_Game_Number
         
@@ -740,12 +864,18 @@ def Quit_Button_Function(root, canvas):
         with open('Game_Number_Counter.txt', 'w') as f:
             f.write(str(Last_Game_Number))
             
-        for k in range(16):
+        for k in range(15):
             canvas.delete(box[k])
     
         del box[:]
         
         boxes_removed = 0
+        
+        with open('NLP_Speech.txt', 'w') as f:
+            NLP_Speech = "Nothing said yet."
+            f.write(NLP_Speech)   
+        
+#         root_updater(root, text_box, canvas)
         
         if str(Delete_CheckBox_Check.get()) == "True":
             os.system('taskkill /im ffmpeg.exe /t /f')
@@ -755,14 +885,15 @@ def Quit_Button_Function(root, canvas):
             delete_game(str(Last_Game_Number - 1))
             delete = True
         
-        
+        NLP_Speech = 'When talking to the robot please say a block color. End your sentence with "finish".'
         root.destroy()
         if delete == True:
             pass
         else:
+            
             os.system('taskkill /im ffmpeg.exe /t /f')
-    
-    
+        
+        
         consent_window()
     
 
